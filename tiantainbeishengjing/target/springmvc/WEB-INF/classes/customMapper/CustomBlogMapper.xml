@@ -1,0 +1,835 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="customMapper.CustomBlogMapper">
+			<!-- 获取全部帖子 -->
+ 	<select id="getAllBlogPostsByUser" parameterType="Map" resultMap="result">
+		SELECT
+			DISTINCT(a.BLOG_ID ),
+			a.US_ID          AS BLOG_US_ID   ,
+			a.SEND_TIME         ,
+			a.UPVOTE_NO         ,
+			a.COMMENT_NO    AS  BLOG_COMMENTED_NO    ,
+			a.COLLECT_NO        ,
+			a.FORWARDING_NO     ,
+			a.IS_DELETE         ,
+			a.IS_FORWARD        ,
+			a.CONTENT           ,
+			a.FORWARD_VALIABLE  ,
+			a.BLOG_STATE        ,
+			a.BLOG_IMG,
+			c.COMMENT_ID,
+			c.COMMENT_US_ID,
+			c.COMMENT_DATE,
+			c.COMMENT_CONTENT,
+			cr.REPLY_ID,
+			cr.REPLY_US_ID,
+			cr.REPLY_DATE,
+			cr.REPLY_CONTENT,
+			cr.REPLY_REPLY_US_ID,
+			qr.US_NAME AS REPLY_US_NAME,
+			qr.HEAD_IMG AS REPLY_HEAD_IMG,
+			qrr.US_NAME AS REPLY_REPLY_US_NAME,
+			qrr.HEAD_IMG AS REPLY_REPLY_HEAD_IMG,
+			q.US_NAME AS COMMENT_US_NAME,
+			q.HEAD_IMG AS COMMENT_HEAD_IMG,
+			u.US_ID AS LOGIN_US_ID,
+			u.HEAD_IMG AS LOGIN_HEAD_IMG,
+			<!-- a（blog） h(option_blog_info获取用户与帖子之间的关系) w(option_blog_info获取帖子被赞的所有用户id)-->
+			<!-- k（user_info获取帖子被赞的所有人的用户信息） f(user_info获取帖子的所属的人的用户信息)-->
+			<!-- b(my_friends_info) c(comment_info获取评论信息) q(user_info获取所有评论该贴的人的用户信息)-->
+			<!-- cr(comment_reply_info获取回复该评论的回复信息) qr(user_info获取所有回复该评论的人的用户信息)-->
+			<!-- u(user_info获取当前登录用户的信息，用于点赞无刷新功能)  qrr(user_info)获取回复该回复的人的信息-->
+			h.US_ID	AS COLLECT_US_ID       ,
+			h.COLLECT_DATE                 ,
+			h.US_ID  AS FORWARD_US_ID      ,
+			h.FORWARD_DATE                 ,
+			w.BLOG_ID AS UPVOTE_BLOG_ID    ,
+			w.US_ID  AS UPVOTE_US_ID      ,
+			w.UPVOTE_DATE                 ,
+			
+			k.HEAD_IMG AS UPVOTE_HEAD_IMG ,
+			
+			
+			f.US_NAME              ,
+			f.STATE                ,
+			f.HEAD_IMG             ,
+			f.BLOG_NO              ,
+			f.COLLECT_BLOG_NO      ,
+			f.CONCERN_NO           ,
+			f.FANS_NO              ,
+			f.MY_FRIEND_NO         ,
+			f.COMMENT_NO           ,
+			f.COMMENT_ME_COMMENT_NO
+			,IF (
+				h.IS_FORWARD = 'Y',		
+				'Y',
+				'N'
+			) AS AS_IS_FORWARD
+			,IF (
+				h.IS_UPVOTE = 'Y',		
+				'Y',
+				'N'
+			) AS AS_IS_UPVOTE
+			,IF (
+				h.IS_COLLECTED = 'Y',		
+				'Y',
+				'N'
+			) AS AS_IS_COLLECTED
+		FROM blog a
+		LEFT OUTER JOIN my_friends_info b
+			ON (
+				a.US_ID=b.US_ID
+				OR a.US_ID=b.FRIEND_ID
+				)
+		LEFT JOIN option_blog_info h
+		ON h.BLOG_ID=a.BLOG_ID
+		AND h.US_ID = #{usId}
+		<!-- 通过帖子操作表获取帖子所有的点赞人的id -->
+		LEFT JOIN option_blog_info w
+		ON w.BLOG_ID=a.BLOG_ID AND w.IS_UPVOTE = 'Y'
+		<!-- 获取当前帖子所属的用户信息 -->
+		LEFT OUTER JOIN user_info f
+		ON f.US_ID=a.US_ID
+		<!-- 获取当前赞该帖的所有人的用户信息 -->
+		LEFT OUTER JOIN user_info k
+		ON k.US_ID=w.US_ID
+		<!-- 获取该帖的所有评论 -->
+		LEFT OUTER JOIN comment_info c
+		ON c.BLOG_ID=a.BLOG_ID
+		<!-- 获取当前评论该帖的所有人的用户信息 -->
+		LEFT OUTER JOIN user_info q
+		ON q.US_ID=c.COMMENT_US_ID
+		<!-- 获取当前该评论的所有回复信息 -->
+		LEFT OUTER JOIN reply_info cr
+		ON cr.COMMENT_ID=c.COMMENT_ID
+		<!--?这里怎么对该帖子的评论和该评论的回复数据通过时间进行排序?  -->
+		<!-- 获取当前所有回复该评论的人的用户信息 -->
+		LEFT OUTER JOIN user_info qr
+		ON qr.US_ID=cr.REPLY_US_ID
+		<!-- 获取当前所有回复该回复的人的用户信息 -->
+		LEFT OUTER JOIN user_info qrr
+		ON qrr.US_ID=cr.REPLY_REPLY_US_ID
+		<!-- 当前登录的用户头像及信息 -->
+		LEFT OUTER JOIN user_info u
+		ON u.US_ID= #{usId}
+		WHERE
+			<!-- b.US_ID= #{usId} -->
+			(a.US_ID= #{usId} OR b.US_ID = #{usId})
+			and
+			a.IS_DELETE = 'N'
+		ORDER BY a.SEND_TIME DESC
+	</select>
+	
+	<resultMap id="result" type="Map">
+      		 <!-- 帖子信息 -->
+      		<id column="BLOG_ID" property="blogId" jdbcType="VARCHAR" />
+   		    <result column="BLOG_US_ID" property="blogUsId" jdbcType="VARCHAR" />
+		    <result column="SEND_TIME" property="sendTime" jdbcType="TIMESTAMP" />
+		    <result column="BLOG_IMG" property="blogImg" jdbcType="VARCHAR" />
+		    <result column="UPVOTE_NO" property="upvoteNo" jdbcType="VARCHAR" />
+		    <result column="BLOG_COMMENTED_NO" property="blogCommentedNo" jdbcType="INTEGER" />
+		    <result column="COLLECT_NO" property="blogCollectedNo" jdbcType="INTEGER" />
+		    <result column="FORWARDING_NO" property="blogForwardedNo" jdbcType="INTEGER" />
+		    <result column="IS_DELETE" property="isDelete" jdbcType="VARCHAR" />
+		    <result column="IS_FORWARD" property="isForward" jdbcType="VARCHAR" />
+		    <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+		    <result column="FORWARD_VALIABLE" property="forwardValiable" jdbcType="VARCHAR" />
+		    <result column="BLOG_STATE" property="blogState" jdbcType="VARCHAR" />
+		    <!-- 获取当前登录用户的id及头像 -->
+		     <result column="LOGIN_US_ID" property="loginUsId" jdbcType="VARCHAR" />
+		    <result column="LOGIN_HEAD_IMG" property="loginHeadImg" jdbcType="VARCHAR" />
+      		 <!-- 用户信息 -->
+      		 <result column="US_NAME" property="usName" jdbcType="VARCHAR" />
+		    <result column="AGE" property="age" jdbcType="INTEGER" />
+		    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+		    <result column="BIRTH_DATE" property="birthDate" jdbcType="TIMESTAMP" />
+		    <result column="US_PS" property="usPs" jdbcType="VARCHAR" />
+		    <result column="TEL" property="tel" jdbcType="VARCHAR" />
+		    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+		    <result column="QQ" property="qq" jdbcType="VARCHAR" />
+		    <result column="WEICHAT" property="weichat" jdbcType="VARCHAR" />
+		    <result column="PS" property="ps" jdbcType="VARCHAR" />
+		    <result column="HOBBY" property="hobby" jdbcType="VARCHAR" />
+		    <result column="AREA" property="area" jdbcType="VARCHAR" />
+		    <result column="GRADUATE_SCHOOL" property="graduateSchool" jdbcType="VARCHAR" />
+		    <result column="PROFESSION" property="profession" jdbcType="VARCHAR" />
+		    <result column="CHIRCH_TYPE" property="chirchType" jdbcType="VARCHAR" />
+		    <result column="STATE" property="state" jdbcType="VARCHAR" />
+		    <result column="START_TRUTH" property="startTruth" jdbcType="TIMESTAMP" />
+		    <result column="REG_DATE" property="regDate" jdbcType="TIMESTAMP" />
+		    <result column="LAST_LOGIN_TIME" property="lastLoginTime" jdbcType="TIMESTAMP" />
+		    <result column="HEAD_IMG" property="headImg" jdbcType="VARCHAR" />
+		    <result column="LEVEL" property="level" jdbcType="VARCHAR" />
+		    <result column="TYPE" property="type" jdbcType="VARCHAR" />
+		    <result column="TK_ID" property="tkId" jdbcType="VARCHAR" />
+		    <result column="AUTHENTICATION" property="authentication" jdbcType="VARCHAR" />
+		    <result column="IS_BAPTISM" property="isBaptism" jdbcType="VARCHAR" />
+		    <result column="IS_TRUTH" property="isTruth" jdbcType="VARCHAR" />
+		    <result column="BLOG_NO" property="blogNo" jdbcType="INTEGER" />
+		    <result column="COLLECT_BLOG_NO" property="collectBlogNo" jdbcType="INTEGER" />
+		    <result column="CONCERN_NO" property="concernNo" jdbcType="INTEGER" />
+		    <result column="FANS_NO" property="fansNo" jdbcType="INTEGER" />
+		    <result column="MY_FRIEND_NO" property="myFriendNo" jdbcType="INTEGER" />
+		    <result column="COMMENT_NO" property="commentNo" jdbcType="INTEGER" />
+		    <result column="COMMENT_ME_COMMENT_NO" property="commentMeCommentNo" jdbcType="INTEGER" />
+      		<!-- 是否收藏信息 -->
+		     <result column="AS_IS_COLLECTED" property="isCollected" jdbcType="VARCHAR" />
+		     <!--是否转发信息 -->
+		     <result column="AS_IS_FORWARD" property="isForward" jdbcType="VARCHAR" />
+		     <!-- 是否点赞 -->
+		     <result column="AS_IS_UPVOTE" property="isUpvote" jdbcType="VARCHAR" />
+		     <!-- 该帖点赞人信息ID集合 -->
+      		<collection property="upvoteInfo" ofType="Map" javaType="ArrayList">
+      		    <id column="UPVOTE_US_ID" property="upvoteUsId"/>
+      		    <result column="UPVOTE_BLOG_ID" property="upvoteBlogId"/>  
+      		    <result column="UPVOTE_HEAD_IMG" property="upvoteHeadImg"/>    		    
+    		</collection>
+    		<!-- 该贴评论人信息ID集合 -->
+   			<collection property="commentInfo" ofType="Map" javaType="ArrayList">
+      		    
+      		    <id column="COMMENT_ID" property="commentId"/>
+      		    <result column="COMMENT_US_ID" property="commentUsId"/>
+      		    <result column="COMMENT_US_NAME" property="commentUsName"/>  
+      		    <result column="COMMENT_HEAD_IMG" property="commentHeadImg"/>  
+      		    <result column="COMMENT_DATE" property="commentDate"/>  
+      		    <result column="COMMENT_CONTENT" property="commentContent"/> 
+      		    <!-- 回复该评论的人的信息集合 -->  	
+	  		    <collection property="replyInfo" ofType="Map" javaType="ArrayList">
+	  		    	<id column="REPLY_ID" property="REPLY_ID"/>
+	      		    <result column="REPLY_US_ID" property="replyUsId"/>
+	      		    <result column="REPLY_US_NAME" property="replyUsName"/>  
+	      		    <result column="REPLY_HEAD_IMG" property="replyHeadImg"/>   
+	      		    <result column="REPLY_DATE" property="replyDate"/>  	
+	      		    <result column="REPLY_CONTENT" property="replyContent"/>
+	      		    <result column="REPLY_REPLY_US_ID" property="replyReplyUsId"/>
+	      		    <result column="REPLY_REPLY_US_NAME" property="replyReplyUsName"/>
+	      		    <result column="REPLY_REPLY_HEAD_IMG" property="replyReplyHeadImg"/>
+	    		</collection>	    
+    		</collection>
+	</resultMap>
+	
+	<select id="getMyBlogs" parameterType="Map" resultMap="myBlogResult">
+		SELECT
+			DISTINCT(a.BLOG_ID ),
+			a.US_ID          AS BLOG_US_ID   ,
+			a.SEND_TIME         ,
+			a.UPVOTE_NO         ,
+			a.COMMENT_NO    AS  BLOG_COMMENTED_NO    ,
+			a.COLLECT_NO        ,
+			a.FORWARDING_NO     ,
+			a.IS_DELETE         ,
+			a.IS_FORWARD        ,
+			a.CONTENT           ,
+			a.FORWARD_VALIABLE  ,
+			a.BLOG_STATE        ,
+			a.BLOG_IMG,
+			c.COMMENT_ID,
+			c.COMMENT_US_ID,
+			c.COMMENT_DATE,
+			c.COMMENT_CONTENT,
+			cr.REPLY_ID,
+			cr.REPLY_US_ID,
+			cr.REPLY_DATE,
+			cr.REPLY_CONTENT,
+			cr.REPLY_REPLY_US_ID,
+			qr.US_NAME AS REPLY_US_NAME,
+			qr.HEAD_IMG AS REPLY_HEAD_IMG,
+			qrr.US_NAME AS REPLY_REPLY_US_NAME,
+			qrr.HEAD_IMG AS REPLY_REPLY_HEAD_IMG,
+			q.US_NAME AS COMMENT_US_NAME,
+			q.HEAD_IMG AS COMMENT_HEAD_IMG,
+			u.US_ID AS LOGIN_US_ID,
+			u.HEAD_IMG AS LOGIN_HEAD_IMG,
+			<!-- a（blog） h(option_blog_info获取用户与帖子之间的关系) w(option_blog_info获取帖子被赞的所有用户id)-->
+			<!-- k（user_info获取帖子被赞的所有人的用户信息） f(user_info获取帖子的所属的人的用户信息)-->
+			<!-- b(my_friends_info) c(comment_info获取评论信息) q(user_info获取所有评论该贴的人的用户信息)-->
+			<!-- cr(comment_reply_info获取回复该评论的回复信息) qr(user_info获取所有回复该评论的人的用户信息)-->
+			<!-- u(user_info获取当前登录用户的信息，用于点赞无刷新功能)  qrr(user_info)获取回复该回复的人的信息-->
+			h.US_ID	AS COLLECT_US_ID       ,
+			h.COLLECT_DATE                 ,
+			h.US_ID  AS FORWARD_US_ID      ,
+			h.FORWARD_DATE                 ,
+			w.BLOG_ID AS UPVOTE_BLOG_ID    ,
+			w.US_ID  AS UPVOTE_US_ID      ,
+			w.UPVOTE_DATE                 ,
+			
+			k.HEAD_IMG AS UPVOTE_HEAD_IMG ,
+			
+			
+			f.US_NAME              ,
+			f.STATE                ,
+			f.HEAD_IMG             ,
+			f.BLOG_NO              ,
+			f.COLLECT_BLOG_NO      ,
+			f.CONCERN_NO           ,
+			f.FANS_NO              ,
+			f.MY_FRIEND_NO         ,
+			f.COMMENT_NO           ,
+			f.COMMENT_ME_COMMENT_NO
+			,IF (
+				h.IS_FORWARD = 'Y',		
+				'Y',
+				'N'
+			) AS AS_IS_FORWARD
+			,IF (
+				h.IS_UPVOTE = 'Y',		
+				'Y',
+				'N'
+			) AS AS_IS_UPVOTE
+			,IF (
+				h.IS_COLLECTED = 'Y',		
+				'Y',
+				'N'
+			) AS AS_IS_COLLECTED
+		FROM blog a
+	<!-- 	LEFT OUTER JOIN my_friends_info b
+			ON (
+				a.US_ID=b.US_ID
+				OR a.US_ID=b.FRIEND_ID
+				) -->
+		LEFT JOIN option_blog_info h
+		ON h.BLOG_ID=a.BLOG_ID
+		AND h.US_ID = #{usId}
+		<!-- 通过帖子操作表获取帖子所有的点赞人的id -->
+		LEFT JOIN option_blog_info w
+		ON w.BLOG_ID=a.BLOG_ID AND w.IS_UPVOTE = 'Y'
+		<!-- 获取当前帖子所属的用户信息 -->
+		LEFT OUTER JOIN user_info f
+		ON f.US_ID=a.US_ID
+		<!-- 获取当前赞该帖的所有人的用户信息 -->
+		LEFT OUTER JOIN user_info k
+		ON k.US_ID=w.US_ID
+		<!-- 获取该帖的所有评论 -->
+		LEFT OUTER JOIN comment_info c
+		ON c.BLOG_ID=a.BLOG_ID
+		<!-- 获取当前评论该帖的所有人的用户信息 -->
+		LEFT OUTER JOIN user_info q
+		ON q.US_ID=c.COMMENT_US_ID
+		<!-- 获取当前该评论的所有回复信息 -->
+		LEFT OUTER JOIN reply_info cr
+		ON cr.COMMENT_ID=c.COMMENT_ID
+		<!--?这里怎么对该帖子的评论和该评论的回复数据通过时间进行排序?  -->
+		<!-- 获取当前所有回复该评论的人的用户信息 -->
+		LEFT OUTER JOIN user_info qr
+		ON qr.US_ID=cr.REPLY_US_ID
+		<!-- 获取当前所有回复该回复的人的用户信息 -->
+		LEFT OUTER JOIN user_info qrr
+		ON qrr.US_ID=cr.REPLY_REPLY_US_ID
+		<!-- 当前登录的用户头像及信息 -->
+		LEFT OUTER JOIN user_info u
+		ON u.US_ID= #{usId}
+		WHERE
+			a.US_ID= #{usId}
+			and
+			a.IS_DELETE = 'N'
+		ORDER BY a.SEND_TIME DESC
+	</select>
+	
+	<resultMap id="myBlogResult" type="Map">
+      		 <!-- 帖子信息 -->
+      		<id column="BLOG_ID" property="blogId" jdbcType="VARCHAR" />
+   		    <result column="BLOG_US_ID" property="blogUsId" jdbcType="VARCHAR" />
+		    <result column="SEND_TIME" property="sendTime" jdbcType="TIMESTAMP" />
+		    <result column="BLOG_IMG" property="blogImg" jdbcType="VARCHAR" />
+		    <result column="UPVOTE_NO" property="upvoteNo" jdbcType="VARCHAR" />
+		    <result column="BLOG_COMMENTED_NO" property="blogCommentedNo" jdbcType="INTEGER" />
+		    <result column="COLLECT_NO" property="blogCollectedNo" jdbcType="INTEGER" />
+		    <result column="FORWARDING_NO" property="blogForwardedNo" jdbcType="INTEGER" />
+		    <result column="IS_DELETE" property="isDelete" jdbcType="VARCHAR" />
+		    <result column="IS_FORWARD" property="isForward" jdbcType="VARCHAR" />
+		    <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+		    <result column="FORWARD_VALIABLE" property="forwardValiable" jdbcType="VARCHAR" />
+		    <result column="BLOG_STATE" property="blogState" jdbcType="VARCHAR" />
+		    <!-- 获取当前登录用户的id及头像 -->
+		     <result column="LOGIN_US_ID" property="loginUsId" jdbcType="VARCHAR" />
+		    <result column="LOGIN_HEAD_IMG" property="loginHeadImg" jdbcType="VARCHAR" />
+      		 <!-- 用户信息 -->
+      		 <result column="US_NAME" property="usName" jdbcType="VARCHAR" />
+		    <result column="AGE" property="age" jdbcType="INTEGER" />
+		    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+		    <result column="BIRTH_DATE" property="birthDate" jdbcType="TIMESTAMP" />
+		    <result column="US_PS" property="usPs" jdbcType="VARCHAR" />
+		    <result column="TEL" property="tel" jdbcType="VARCHAR" />
+		    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+		    <result column="QQ" property="qq" jdbcType="VARCHAR" />
+		    <result column="WEICHAT" property="weichat" jdbcType="VARCHAR" />
+		    <result column="PS" property="ps" jdbcType="VARCHAR" />
+		    <result column="HOBBY" property="hobby" jdbcType="VARCHAR" />
+		    <result column="AREA" property="area" jdbcType="VARCHAR" />
+		    <result column="GRADUATE_SCHOOL" property="graduateSchool" jdbcType="VARCHAR" />
+		    <result column="PROFESSION" property="profession" jdbcType="VARCHAR" />
+		    <result column="CHIRCH_TYPE" property="chirchType" jdbcType="VARCHAR" />
+		    <result column="STATE" property="state" jdbcType="VARCHAR" />
+		    <result column="START_TRUTH" property="startTruth" jdbcType="TIMESTAMP" />
+		    <result column="REG_DATE" property="regDate" jdbcType="TIMESTAMP" />
+		    <result column="LAST_LOGIN_TIME" property="lastLoginTime" jdbcType="TIMESTAMP" />
+		    <result column="HEAD_IMG" property="headImg" jdbcType="VARCHAR" />
+		    <result column="LEVEL" property="level" jdbcType="VARCHAR" />
+		    <result column="TYPE" property="type" jdbcType="VARCHAR" />
+		    <result column="TK_ID" property="tkId" jdbcType="VARCHAR" />
+		    <result column="AUTHENTICATION" property="authentication" jdbcType="VARCHAR" />
+		    <result column="IS_BAPTISM" property="isBaptism" jdbcType="VARCHAR" />
+		    <result column="IS_TRUTH" property="isTruth" jdbcType="VARCHAR" />
+		    <result column="BLOG_NO" property="blogNo" jdbcType="INTEGER" />
+		    <result column="COLLECT_BLOG_NO" property="collectBlogNo" jdbcType="INTEGER" />
+		    <result column="CONCERN_NO" property="concernNo" jdbcType="INTEGER" />
+		    <result column="FANS_NO" property="fansNo" jdbcType="INTEGER" />
+		    <result column="MY_FRIEND_NO" property="myFriendNo" jdbcType="INTEGER" />
+		    <result column="COMMENT_NO" property="commentNo" jdbcType="INTEGER" />
+		    <result column="COMMENT_ME_COMMENT_NO" property="commentMeCommentNo" jdbcType="INTEGER" />
+      		<!-- 是否收藏信息 -->
+		     <result column="AS_IS_COLLECTED" property="isCollected" jdbcType="VARCHAR" />
+		     <!--是否转发信息 -->
+		     <result column="AS_IS_FORWARD" property="isForward" jdbcType="VARCHAR" />
+		     <!-- 是否点赞 -->
+		     <result column="AS_IS_UPVOTE" property="isUpvote" jdbcType="VARCHAR" />
+		     <!-- 该帖点赞人信息ID集合 -->
+      		<collection property="upvoteInfo" ofType="Map" javaType="ArrayList">
+      		    <id column="UPVOTE_US_ID" property="upvoteUsId"/>
+      		    <result column="UPVOTE_BLOG_ID" property="upvoteBlogId"/>  
+      		    <result column="UPVOTE_HEAD_IMG" property="upvoteHeadImg"/>    		    
+    		</collection>
+    		<!-- 该贴评论人信息ID集合 -->
+   			<collection property="commentInfo" ofType="Map" javaType="ArrayList">
+      		    
+      		    <id column="COMMENT_ID" property="commentId"/>
+      		    <result column="COMMENT_US_ID" property="commentUsId"/>
+      		    <result column="COMMENT_US_NAME" property="commentUsName"/>  
+      		    <result column="COMMENT_HEAD_IMG" property="commentHeadImg"/>  
+      		    <result column="COMMENT_DATE" property="commentDate"/>  
+      		    <result column="COMMENT_CONTENT" property="commentContent"/> 
+      		    <!-- 回复该评论的人的信息集合 -->  	
+	  		    <collection property="replyInfo" ofType="Map" javaType="ArrayList">
+	  		    	<id column="REPLY_ID" property="REPLY_ID"/>
+	      		    <result column="REPLY_US_ID" property="replyUsId"/>
+	      		    <result column="REPLY_US_NAME" property="replyUsName"/>  
+	      		    <result column="REPLY_HEAD_IMG" property="replyHeadImg"/>   
+	      		    <result column="REPLY_DATE" property="replyDate"/>  	
+	      		    <result column="REPLY_CONTENT" property="replyContent"/>
+	      		    <result column="REPLY_REPLY_US_ID" property="replyReplyUsId"/>
+	      		    <result column="REPLY_REPLY_US_NAME" property="replyReplyUsName"/>
+	      		    <result column="REPLY_REPLY_HEAD_IMG" property="replyReplyHeadImg"/>
+	    		</collection>	    
+    		</collection>
+	</resultMap>
+	<select id="selectBlogOptExit"  parameterType="Map" resultType="INTEGER">
+		select
+			count(*)
+		from
+			option_blog_info
+		where
+			   BLOG_ID = #{blogId}
+   			and	
+			   US_ID = #{usId}
+	</select>
+	<update id="addUpVoteNo" parameterType="Map">
+		UPDATE blog
+		SET UPVOTE_NO = UPVOTE_NO + 1
+		WHERE
+			BLOG_ID = #{blogId}
+	</update>
+	<update id="delUpVoteNo" parameterType="Map">
+		UPDATE blog
+		SET UPVOTE_NO = UPVOTE_NO - 1
+		WHERE
+			BLOG_ID = #{blogId}
+	</update>
+
+	<insert id="insertBlogOptUpvote"  parameterType="Map">
+		insert into option_blog_info
+		(
+			BLOG_OPT_ID,
+			US_ID           ,
+			BLOG_ID         ,
+			UPVOTE_DATE     ,
+			IS_UPVOTE       
+		)               
+		values          
+		(      
+			UUID(),         
+			#{usId}         ,
+			#{blogId}       ,
+			NOW()           ,
+			'Y'             
+		)
+	</insert>
+	<update id="updateBlogOptAddUpvote"  parameterType="Map">
+		update option_blog_info
+			set
+				IS_UPVOTE  = 'Y'     
+			where
+			   BLOG_ID = #{blogId}
+   			and	
+			   US_ID = #{usId}
+	</update>
+	<update id="updateBlogOptDelUpvote"  parameterType="Map">
+		update option_blog_info
+			set
+				IS_UPVOTE  = 'N'     
+			where
+			   BLOG_ID = #{blogId}
+   			and	
+			   US_ID = #{usId}
+	</update>
+
+	<update id="addCollectNo" parameterType="Map">
+		UPDATE blog
+		SET COLLECT_NO = COLLECT_NO + 1
+		WHERE
+			BLOG_ID = #{blogId}
+	</update>
+	<update id="delCollectNo" parameterType="Map">
+		UPDATE blog
+		SET COLLECT_NO = COLLECT_NO - 1
+		WHERE
+			BLOG_ID = #{blogId}
+	</update>
+	<insert id="insertBlogOptCollect"  parameterType="Map">
+		insert into option_blog_info
+		(
+			BLOG_OPT_ID,
+			US_ID           ,
+			BLOG_ID         ,
+			COLLECT_DATE     ,
+			IS_COLLECTED       
+		)               
+		values          
+		(      
+			UUID(),         
+			#{usId}         ,
+			#{blogId}       ,
+			NOW()           ,
+			'Y'             
+		)
+	</insert>
+	<update id="updateBlogOptAddCollect"  parameterType="Map">
+		update option_blog_info
+			set
+				IS_COLLECTED  = 'Y'     
+			where
+			   BLOG_ID = #{blogId}
+   			and	
+			   US_ID = #{usId}
+	</update>
+	<update id="updateBlogOptDelCollect"  parameterType="Map">
+		update option_blog_info
+			set
+				IS_COLLECTED  = 'N'     
+			where
+			   BLOG_ID = #{blogId}
+   			and	
+			   US_ID = #{usId}
+	</update>
+	<insert id="addComment"  parameterType="Map">
+		insert into comment_info
+		(
+			COMMENT_ID            ,
+			BLOG_ID               ,
+			COMMENT_US_ID         ,
+			COMMENT_DATE          ,
+			COMMENT_CONTENT       ,
+			IS_DELETE
+     
+		)               
+		values          
+		(      
+			UUID()			, 
+			#{blogId}       ,       
+			#{usId}         ,
+			NOW()           ,
+			#{commentContent},
+			'N'             
+		)
+	</insert>
+	<delete id="delComment" parameterType="Map">
+		DELETE  FROM comment_info 
+		WHERE 
+			COMMENT_ID = #{commentId} 
+	</delete>
+	<update id="addCommentNo" parameterType="Map">
+		UPDATE blog
+		SET COMMENT_NO = COMMENT_NO + 1
+		WHERE
+			BLOG_ID = #{blogId}
+	</update>
+	<update id="reduceCommentNo" parameterType="Map">
+		UPDATE blog
+		SET COMMENT_NO = COMMENT_NO - 1
+		WHERE
+			BLOG_ID = #{blogId}
+	</update>
+
+	<insert id="addCommentReply"  parameterType="Map">
+		insert into reply_info
+		(
+			REPLY_ID            ,
+			COMMENT_ID          ,
+			REPLY_US_ID         ,
+			REPLY_CONTENT       ,
+			REPLY_DATE          ,
+			IS_DELETE           ,
+			REPLY_REPLY_US_ID
+		)               
+		values          
+		(      
+			UUID()			, 
+			#{commentId}    ,
+			#{usId}         ,
+			#{replyContent} ,
+			NOW()           ,
+			'N'         	,
+			'0'    
+		)
+	</insert>
+	<insert id="addReplyReply"  parameterType="Map">
+		insert into reply_info
+		(
+			REPLY_ID            ,
+			COMMENT_ID          ,
+			REPLY_US_ID         ,<!-- 被回复的用户id  -->
+			REPLY_CONTENT       ,
+			REPLY_DATE          ,
+			IS_DELETE           ,
+			REPLY_REPLY_US_ID
+		)               
+		values          
+		(      
+			UUID()			, 
+			#{commentId}    ,
+			#{replyedUsId} 	,
+			#{replyContent} ,
+			NOW()           ,
+			'N'         	,
+			#{usId}           
+		)
+	</insert>
+	<!-- 回收站里面真实的删除 -->
+	<delete id="deleteBlogByIdPhysical" parameterType="Map">
+		DELETE  FROM blog 
+		WHERE 
+			BLOG_ID = #{blogId} 
+	</delete>
+	<!-- 帖子页面删除（逻辑删除） -->
+	<update id="deleteBlogByIdLogic" parameterType="Map">
+		UPDATE blog
+		SET IS_DELETE = 'Y'
+		WHERE
+		BLOG_ID = #{blogId} 
+	</update>
+<select id="searchMyRecBlogs" parameterType="Map" resultMap="MyRecBlogsResult">
+		SELECT
+			DISTINCT(a.BLOG_ID ),
+			a.US_ID          AS BLOG_US_ID   ,
+			a.SEND_TIME         ,
+			a.UPVOTE_NO         ,
+			a.COMMENT_NO    AS  BLOG_COMMENTED_NO    ,
+			a.COLLECT_NO        ,
+			a.FORWARDING_NO     ,
+			a.IS_DELETE         ,
+			a.IS_FORWARD        ,
+			a.CONTENT           ,
+			a.FORWARD_VALIABLE  ,
+			a.BLOG_STATE        ,
+			a.BLOG_IMG,
+			c.COMMENT_ID,
+			c.COMMENT_US_ID,
+			c.COMMENT_DATE,
+			c.COMMENT_CONTENT,
+			cr.REPLY_ID,
+			cr.REPLY_US_ID,
+			cr.REPLY_DATE,
+			cr.REPLY_CONTENT,
+			cr.REPLY_REPLY_US_ID,
+			qr.US_NAME AS REPLY_US_NAME,
+			qr.HEAD_IMG AS REPLY_HEAD_IMG,
+			qrr.US_NAME AS REPLY_REPLY_US_NAME,
+			qrr.HEAD_IMG AS REPLY_REPLY_HEAD_IMG,
+			q.US_NAME AS COMMENT_US_NAME,
+			q.HEAD_IMG AS COMMENT_HEAD_IMG,
+			u.US_ID AS LOGIN_US_ID,
+			u.HEAD_IMG AS LOGIN_HEAD_IMG,
+			<!-- a（blog） h(option_blog_info获取用户与帖子之间的关系) w(option_blog_info获取帖子被赞的所有用户id)-->
+			<!-- k（user_info获取帖子被赞的所有人的用户信息） f(user_info获取帖子的所属的人的用户信息)-->
+			<!-- b(my_friends_info) c(comment_info获取评论信息) q(user_info获取所有评论该贴的人的用户信息)-->
+			<!-- cr(comment_reply_info获取回复该评论的回复信息) qr(user_info获取所有回复该评论的人的用户信息)-->
+			<!-- u(user_info获取当前登录用户的信息，用于点赞无刷新功能)  qrr(user_info)获取回复该回复的人的信息-->
+			h.US_ID	AS COLLECT_US_ID       ,
+			h.COLLECT_DATE                 ,
+			h.US_ID  AS FORWARD_US_ID      ,
+			h.FORWARD_DATE                 ,
+			w.BLOG_ID AS UPVOTE_BLOG_ID    ,
+			w.US_ID  AS UPVOTE_US_ID      ,
+			w.UPVOTE_DATE                 ,
+			
+			k.HEAD_IMG AS UPVOTE_HEAD_IMG ,
+			
+			
+			f.US_NAME              ,
+			f.STATE                ,
+			f.HEAD_IMG             ,
+			f.BLOG_NO              ,
+			f.COLLECT_BLOG_NO      ,
+			f.CONCERN_NO           ,
+			f.FANS_NO              ,
+			f.MY_FRIEND_NO         ,
+			f.COMMENT_NO           ,
+			f.COMMENT_ME_COMMENT_NO
+			,IF (
+				h.IS_FORWARD = 'Y',		
+				'Y',
+				'N'
+			) AS AS_IS_FORWARD
+			,IF (
+				h.IS_UPVOTE = 'Y',		
+				'Y',
+				'N'
+			) AS AS_IS_UPVOTE
+			,IF (
+				h.IS_COLLECTED = 'Y',		
+				'Y',
+				'N'
+			) AS AS_IS_COLLECTED
+		FROM blog a
+	<!-- 	LEFT OUTER JOIN my_friends_info b
+			ON (
+				a.US_ID=b.US_ID
+				OR a.US_ID=b.FRIEND_ID
+				) -->
+		LEFT JOIN option_blog_info h
+		ON h.BLOG_ID=a.BLOG_ID
+		AND h.US_ID = #{usId}
+		<!-- 通过帖子操作表获取帖子所有的点赞人的id -->
+		LEFT JOIN option_blog_info w
+		ON w.BLOG_ID=a.BLOG_ID AND w.IS_UPVOTE = 'Y'
+		<!-- 获取当前帖子所属的用户信息 -->
+		LEFT OUTER JOIN user_info f
+		ON f.US_ID=a.US_ID
+		<!-- 获取当前赞该帖的所有人的用户信息 -->
+		LEFT OUTER JOIN user_info k
+		ON k.US_ID=w.US_ID
+		<!-- 获取该帖的所有评论 -->
+		LEFT OUTER JOIN comment_info c
+		ON c.BLOG_ID=a.BLOG_ID
+		<!-- 获取当前评论该帖的所有人的用户信息 -->
+		LEFT OUTER JOIN user_info q
+		ON q.US_ID=c.COMMENT_US_ID
+		<!-- 获取当前该评论的所有回复信息 -->
+		LEFT OUTER JOIN reply_info cr
+		ON cr.COMMENT_ID=c.COMMENT_ID
+		<!--?这里怎么对该帖子的评论和该评论的回复数据通过时间进行排序?  -->
+		<!-- 获取当前所有回复该评论的人的用户信息 -->
+		LEFT OUTER JOIN user_info qr
+		ON qr.US_ID=cr.REPLY_US_ID
+		<!-- 获取当前所有回复该回复的人的用户信息 -->
+		LEFT OUTER JOIN user_info qrr
+		ON qrr.US_ID=cr.REPLY_REPLY_US_ID
+		<!-- 当前登录的用户头像及信息 -->
+		LEFT OUTER JOIN user_info u
+		ON u.US_ID= #{usId}
+		WHERE
+			a.US_ID= #{usId}
+			and
+			a.IS_DELETE = 'Y'
+		ORDER BY a.SEND_TIME DESC
+	</select>
+	
+	<resultMap id="MyRecBlogsResult" type="Map">
+      		 <!-- 帖子信息 -->
+      		<id column="BLOG_ID" property="blogId" jdbcType="VARCHAR" />
+   		    <result column="BLOG_US_ID" property="blogUsId" jdbcType="VARCHAR" />
+		    <result column="SEND_TIME" property="sendTime" jdbcType="TIMESTAMP" />
+		    <result column="BLOG_IMG" property="blogImg" jdbcType="VARCHAR" />
+		    <result column="UPVOTE_NO" property="upvoteNo" jdbcType="VARCHAR" />
+		    <result column="BLOG_COMMENTED_NO" property="blogCommentedNo" jdbcType="INTEGER" />
+		    <result column="COLLECT_NO" property="blogCollectedNo" jdbcType="INTEGER" />
+		    <result column="FORWARDING_NO" property="blogForwardedNo" jdbcType="INTEGER" />
+		    <result column="IS_DELETE" property="isDelete" jdbcType="VARCHAR" />
+		    <result column="IS_FORWARD" property="isForward" jdbcType="VARCHAR" />
+		    <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+		    <result column="FORWARD_VALIABLE" property="forwardValiable" jdbcType="VARCHAR" />
+		    <result column="BLOG_STATE" property="blogState" jdbcType="VARCHAR" />
+		    <!-- 获取当前登录用户的id及头像 -->
+		     <result column="LOGIN_US_ID" property="loginUsId" jdbcType="VARCHAR" />
+		    <result column="LOGIN_HEAD_IMG" property="loginHeadImg" jdbcType="VARCHAR" />
+      		 <!-- 用户信息 -->
+      		 <result column="US_NAME" property="usName" jdbcType="VARCHAR" />
+		    <result column="AGE" property="age" jdbcType="INTEGER" />
+		    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+		    <result column="BIRTH_DATE" property="birthDate" jdbcType="TIMESTAMP" />
+		    <result column="US_PS" property="usPs" jdbcType="VARCHAR" />
+		    <result column="TEL" property="tel" jdbcType="VARCHAR" />
+		    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+		    <result column="QQ" property="qq" jdbcType="VARCHAR" />
+		    <result column="WEICHAT" property="weichat" jdbcType="VARCHAR" />
+		    <result column="PS" property="ps" jdbcType="VARCHAR" />
+		    <result column="HOBBY" property="hobby" jdbcType="VARCHAR" />
+		    <result column="AREA" property="area" jdbcType="VARCHAR" />
+		    <result column="GRADUATE_SCHOOL" property="graduateSchool" jdbcType="VARCHAR" />
+		    <result column="PROFESSION" property="profession" jdbcType="VARCHAR" />
+		    <result column="CHIRCH_TYPE" property="chirchType" jdbcType="VARCHAR" />
+		    <result column="STATE" property="state" jdbcType="VARCHAR" />
+		    <result column="START_TRUTH" property="startTruth" jdbcType="TIMESTAMP" />
+		    <result column="REG_DATE" property="regDate" jdbcType="TIMESTAMP" />
+		    <result column="LAST_LOGIN_TIME" property="lastLoginTime" jdbcType="TIMESTAMP" />
+		    <result column="HEAD_IMG" property="headImg" jdbcType="VARCHAR" />
+		    <result column="LEVEL" property="level" jdbcType="VARCHAR" />
+		    <result column="TYPE" property="type" jdbcType="VARCHAR" />
+		    <result column="TK_ID" property="tkId" jdbcType="VARCHAR" />
+		    <result column="AUTHENTICATION" property="authentication" jdbcType="VARCHAR" />
+		    <result column="IS_BAPTISM" property="isBaptism" jdbcType="VARCHAR" />
+		    <result column="IS_TRUTH" property="isTruth" jdbcType="VARCHAR" />
+		    <result column="BLOG_NO" property="blogNo" jdbcType="INTEGER" />
+		    <result column="COLLECT_BLOG_NO" property="collectBlogNo" jdbcType="INTEGER" />
+		    <result column="CONCERN_NO" property="concernNo" jdbcType="INTEGER" />
+		    <result column="FANS_NO" property="fansNo" jdbcType="INTEGER" />
+		    <result column="MY_FRIEND_NO" property="myFriendNo" jdbcType="INTEGER" />
+		    <result column="COMMENT_NO" property="commentNo" jdbcType="INTEGER" />
+		    <result column="COMMENT_ME_COMMENT_NO" property="commentMeCommentNo" jdbcType="INTEGER" />
+      		<!-- 是否收藏信息 -->
+		     <result column="AS_IS_COLLECTED" property="isCollected" jdbcType="VARCHAR" />
+		     <!--是否转发信息 -->
+		     <result column="AS_IS_FORWARD" property="isForward" jdbcType="VARCHAR" />
+		     <!-- 是否点赞 -->
+		     <result column="AS_IS_UPVOTE" property="isUpvote" jdbcType="VARCHAR" />
+		     <!-- 该帖点赞人信息ID集合 -->
+      		<collection property="upvoteInfo" ofType="Map" javaType="ArrayList">
+      		    <id column="UPVOTE_US_ID" property="upvoteUsId"/>
+      		    <result column="UPVOTE_BLOG_ID" property="upvoteBlogId"/>  
+      		    <result column="UPVOTE_HEAD_IMG" property="upvoteHeadImg"/>    		    
+    		</collection>
+    		<!-- 该贴评论人信息ID集合 -->
+   			<collection property="commentInfo" ofType="Map" javaType="ArrayList">
+      		    
+      		    <id column="COMMENT_ID" property="commentId"/>
+      		    <result column="COMMENT_US_ID" property="commentUsId"/>
+      		    <result column="COMMENT_US_NAME" property="commentUsName"/>  
+      		    <result column="COMMENT_HEAD_IMG" property="commentHeadImg"/>  
+      		    <result column="COMMENT_DATE" property="commentDate"/>  
+      		    <result column="COMMENT_CONTENT" property="commentContent"/> 
+      		    <!-- 回复该评论的人的信息集合 -->  	
+	  		    <collection property="replyInfo" ofType="Map" javaType="ArrayList">
+	  		    	<id column="REPLY_ID" property="REPLY_ID"/>
+	      		    <result column="REPLY_US_ID" property="replyUsId"/>
+	      		    <result column="REPLY_US_NAME" property="replyUsName"/>  
+	      		    <result column="REPLY_HEAD_IMG" property="replyHeadImg"/>   
+	      		    <result column="REPLY_DATE" property="replyDate"/>  	
+	      		    <result column="REPLY_CONTENT" property="replyContent"/>
+	      		    <result column="REPLY_REPLY_US_ID" property="replyReplyUsId"/>
+	      		    <result column="REPLY_REPLY_US_NAME" property="replyReplyUsName"/>
+	      		    <result column="REPLY_REPLY_HEAD_IMG" property="replyReplyHeadImg"/>
+	    		</collection>	    
+    		</collection>
+	</resultMap>	
+	<delete id="deleteBlogPhysical" parameterType="Map">
+		DELETE  FROM blog 
+		WHERE 
+			BLOG_ID = #{blogId}
+	</delete>
+	<update id="blogReverseAdd" parameterType="Map">
+		UPDATE blog
+		SET IS_DELETE = 'N'
+		WHERE
+		BLOG_ID = #{blogId} 
+	</update>
+	
+</mapper>

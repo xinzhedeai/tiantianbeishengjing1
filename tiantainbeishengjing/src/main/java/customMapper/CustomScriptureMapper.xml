@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="customMapper.CustomScriptureMapper">
+	<insert id="insertScripture" parameterType="Map">
+		replace into scripture
+		(
+		<!-- id, -->
+		scripture_no,
+		scripture_text,
+		url,
+		create_date,
+		type
+		)
+		values
+		(
+		<!-- UUID(), -->
+		#{scripture_no},
+		#{scripture_text},
+		#{url},
+		#{create_date},
+		#{type}
+		)
+	</insert>
+	<select id="searchScriptures" parameterType="Map" resultType="Map">
+		SELECT 
+			*
+		 FROM
+		scripture
+		<where>
+			<if test="readSriptureNoList != null and readSriptureNoList != ''">
+				scripture_no IN
+				<foreach collection="readSriptureNoList" item="item" index="index"
+					open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+			ORDER BY create_date DESC
+	</select>
+	<select id="searchScripturesByDate" parameterType="Map" resultType="Integer">
+		SELECT  
+			substring(scripture_no, 2)<!-- 从第二个字符开始裁剪包含第二个 --> 
+		FROM
+		SCRIPTURE
+		<where>
+			<if test="type != null and type != ''">
+				type = #{type}
+			</if>
+			<if test="createDate != null and createDate != ''">
+				AND create_date = #{createDate}
+			</if>
+		</where>
+	</select>
+
+</mapper>

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>青橄榄-首页</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="author" content="zjb" />
+<script type="text/javascript"
+	src="/lib/js/includeHead.js?v=20151020001"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+<style>
+	.switch{float:none;}
+	.scriptureNo{
+		width:81%;
+		display:inline-block;
+	}
+	.scriptureNoFlag{
+		width:18%;
+		display:inline-block;
+	}
+	#add_scripture_modal label{display:block;}
+</style>
+</head>
+<body>
+	<div class="header"></div>
+	<div class="container index-container ">
+		<div class="row index-row index-row-special">
+			<div class="col-sm-7">
+				<!-- 	<button class="btn btn-primary"  type="button" id="excelExport">我要导出excel表格</button> -->
+				<div class="index-textarea">
+					<form id="seachForm">
+						<div class="form-group">
+							<div class="index-area-title">
+								<label>请输入要搜索的经文所属编号</label>
+							</div>
+							<textarea class="form-control index-area" name="scriptureNo"></textarea>
+						</div>
+						<div class="login-button">
+							<button type="button"
+								class="btn btn-success btn-sm index-send-btn " id="searchBtn">经文作业搜索</button>
+							<button type="button"
+								class="btn btn-danger btn-sm index-send-btn "
+								data-toggle="modal" data-target="#add_scripture_modal">添加背诵经文</button>
+							<button type="button"
+								class="btn btn-primary btn-sm index-send-btn " id="importBtn">批量导入</button>
+						</div>
+					</form>
+				</div>
+				<div id="previewArea" class="clearfix">尚未查找到相关数据~~~~</div>
+				<!-- 模态弹出窗内容 -->
+				<div class="modal fade" id="add_scripture_modal">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+								</button>
+								<h4 class="modal-title">背诵经文</h4>
+							</div>
+							<div class="modal-body">
+								<form role="form">
+									<div class="form-group">
+										<label for="logTitle">经文编号</label>
+										<select type="text" name="scriptureNoFlag" class="form-control scriptureNoFlag">
+											<option value="A">新约背节</option>
+											<option value="B">旧约背节</option>
+											<option value="C">背章</option>
+											<option value="D">诗篇</option>
+											<option value="E">箴言</option>
+										</select>
+										 <input type="text"
+											name="scriptureNo" class="form-control scriptureNo" placeholder="请输入经文编号">
+									</div>
+									<div class="form-group">
+										<label for="logTitle">视频链接</label> <input type="text"
+											name="url" class="form-control">
+									</div>
+									<div class="form-group">
+										<label for="logContent">日期</label>
+										<input class="form-control" name="createDate" type="text" value="2017-12-25" id="datetimepicker">
+									</div>
+									<div class="form-group">
+										<label for="logContent">内容</label>
+										<textarea class="form-control" rows="3" name="scriptureText"></textarea>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-error" data-dismiss="modal">取消</button>
+								<button type="button" class="btn btn-success" id="confirmBtn">添加</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- 模态框 -->
+				<!-- 批量导入模态框 -->
+				<div class="modal fade upload-modal" id="upload_scripture_modal">
+					<div class="modal-dialog formModal">
+						<div class="modal-content">
+							<div class="modal-header uploadModalHeader">
+								<button type="button" class="upload close" data-dismiss="modal"
+									aria-hidden="true">&times;</button>
+								<h3 class="modal-title" id="myModalLabel">批量导入经文数据</h3>
+							</div>
+							<div class="modal-body uploadModalBody" style="padding: 0;">
+								<div id="upload_scripture_div" extensions="xls,xlsx"
+									size="1024kb" headtitle="请选择excel文件"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- modal -->
+			</div>
+		</div>
+	</div>
+	<div class="footer"></div>
+</body>
+</html>
