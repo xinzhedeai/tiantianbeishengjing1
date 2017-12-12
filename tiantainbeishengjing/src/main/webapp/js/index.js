@@ -102,6 +102,10 @@ function getScripture() {
 			var result = result.result, scriptureStr = '', url = '';
 			if (result && result.length > 0) {
 				for (var i = 0; i < result.length; i++) {
+					if(i == 0)
+						scriptureStr += result[i].create_date + '</br><hr/>';
+					if(i == 1)
+						scriptureStr += '复习:</br><hr/>';
 					scriptureStr += result[i].scripture_text + '</br><hr/>';
 					url = result[i].url ? result[i].url : '';
 				}

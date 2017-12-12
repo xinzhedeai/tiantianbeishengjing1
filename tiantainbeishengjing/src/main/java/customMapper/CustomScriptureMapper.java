@@ -12,4 +12,11 @@ public interface CustomScriptureMapper extends Mapper{
 	List<Scripture> searchScriptures(Map paramMap);
 
 	int searchScripturesByDate(Map paramMap);
+
+	String selectLastDate(Map paramMap);
+
+	int insertScriptureByManual(Map paramMap);
+
+	String selectLastScriptureNo(Map paramMap);
+	
 }

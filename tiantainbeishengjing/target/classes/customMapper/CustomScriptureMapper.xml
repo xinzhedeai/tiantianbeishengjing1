@@ -21,6 +21,27 @@
 		#{type}
 		)
 	</insert>
+		<insert id="insertScriptureByManual" parameterType="Map">
+		insert into scripture
+		(
+		scripture_no,
+		scripture_text,
+		url,
+		create_date,
+		type
+		)
+		values
+		(
+		<!-- UUID(), -->
+		#{scriptureNo},
+		#{scriptureText},
+		#{url},
+		#{createDate},
+		#{scriptureNoFlag}
+		)
+	</insert>
+
+	
 	<select id="searchScriptures" parameterType="Map" resultType="Map">
 		SELECT 
 			*
@@ -51,5 +72,24 @@
 			</if>
 		</where>
 	</select>
+	<select id="selectLastDate" parameterType="Map" resultType="String">
+			SELECT 
+				create_date
+			FROM
+				scripture
+			WHERE 
+				type = #{scriptureNoFlag}
+			ORDER BY create_date DESC LIMIT 0, 1
+	</select>
+	<select id="selectLastScriptureNo" parameterType="Map" resultType="String">
+		SELECT 
+			create_date
+		FROM
+			scripture
+		WHERE 
+			type = #{scriptureNoFlag}
+		ORDER BY create_date DESC LIMIT 0, 1
+	</select>
+	
 
 </mapper>

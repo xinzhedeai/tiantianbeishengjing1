@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -940,5 +942,19 @@ public class StringUtil {
         return s; 
     }
 	
- 
+    /**
+     * 正则替换所有特殊字符
+     * @param str
+     * @return
+     */  
+    public static String replaceSpecStr(String str){
+    	if (null!=str && !"".equals(str.trim())) {
+//    		String regEx="[\\s~·`!！@#￥$%^……&*（()）\\-——\\-_=+【\\[\\]】｛{}｝\\|、\\\\；;：:‘'“”\"，,《<。.》>、/？?]";
+    		String regEx="[\\s~·`!！@#￥$%^……&*（()）\\-——\\-_=+【\\[\\]】｛{}｝\\|、\\\\；;：:‘'“”\"，,《<。》>、/？?]";//不包含.
+    		Pattern p = Pattern.compile(regEx);
+    		Matcher m = p.matcher(str);
+    		return m.replaceAll("");
+    	}
+    	return null;
+    }
 }

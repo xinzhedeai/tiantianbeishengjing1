@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
 
+import customMapper.CustomScriptureMapper;
 import exception.SysException;
 import normalMapper.ScriptureMapper;
 import normalMapper.UserMapper;
@@ -58,6 +60,7 @@ import util.DateUtil;
 import util.MD5Util;
 import util.MSG_CONST;
 import util.SpringUtils;
+import util.StringUtil;
 import util.WDUtil;
 
 @SuppressWarnings("rawtypes")
@@ -70,7 +73,9 @@ public class ScriptureAction {
 	private ScriptureService scriptureServiceImpl;
 	@Autowired
 	private ScriptureMapper scriptureMapper;
-	@ResponseBody
+	@Autowired
+	private CustomScriptureMapper customScriptureMapper;
+/*	@ResponseBody
 	@RequestMapping("/addScripture")
 	public JsonResult addScripture(HttpSession session, HttpServletRequest req) throws Exception {
 		JsonResult j = new JsonResult();
@@ -92,8 +97,55 @@ public class ScriptureAction {
 			throw new SysException("发生错误");
 		}
 		return j;
-	}
+	}*/
 
+	@ResponseBody
+	@RequestMapping("/addScripture")
+	public JsonResult addScripture(HttpSession session, HttpServletRequest req) throws Exception {
+		JsonResult j = new JsonResult();
+		Map paramMap = new HashMap();
+		paramMap = SpringUtils.getParameterMap(req);
+//		Scripture sp = MapToBean(Scripture.class, paramMap);
+//		String create_date = paramMap.get("create_date").toString();
+		String type = paramMap.get("scriptureNoFlag").toString();
+		
+		String last_scripture_no = customScriptureMapper.selectLastScriptureNo(paramMap);//获取某个类型经文下最后的日期
+		String last_date = customScriptureMapper.selectLastDate(paramMap);//获取某个类型经文下最后的日期 
+	    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date currdate = format.parse(last_date);
+        System.out.println("现在的日期是：" + currdate);
+        Calendar ca = Calendar.getInstance();
+         ca.setTime(currdate);
+       //在最后日期上 新约背节和旧约背节添加一天 （背章、诗篇、箴言是7天）
+        /* if("A".equals(type) || "B".equals(type)){
+        	 ca.add(Calendar.DATE, 1);// num为增加的天数，可以改变的
+         }else{
+        	 ca.add(Calendar.DATE, 7);// num为增加的天数，可以改变的
+         }*/
+         
+         ca.add(Calendar.DATE, 1);// num为增加的天数，可以改变的
+         currdate = ca.getTime();
+         String enddate = format.format(currdate);
+         System.out.println("增加天数以后的日期：" + enddate);
+         paramMap.put("createDate", enddate);
+ 		String scriptNoPinyin = paramMap.get("scriptureNoFlag") + 
+				StringUtil.converterToSpell(StringUtil.replaceSpecStr(enddate));
+		paramMap.put("scriptureNo", scriptNoPinyin);
+		
+		try {
+			if (customScriptureMapper.insertScriptureByManual(paramMap) > 0) {
+				j.setSuccess(true);
+				j.setMsg(MSG_CONST.ADDSUCCESS);
+			} else {
+				j.setSuccess(false);
+				j.setMsg(MSG_CONST.ADDFAIL);
+			}
+		} catch (Exception e) {
+			logger.error(e);
+			throw new SysException("发生错误");
+		}
+		return j;
+	}
 /*	@ResponseBody
 	@RequestMapping("/searchScripturesByNo")
 	public JsonResult searchScripturesByNo(HttpServletRequest req) throws SysException {
@@ -266,7 +318,7 @@ public class ScriptureAction {
 			logger.info("lineNum已读行数" + dataRowNum);
 			// 获取表中的数据，每个公司信息存一个Map，所有的放在一个List<Map>中,同样的，每个用户信息存一个Map，所有的放在一个List<Map>中。
 			List<Map> scripture_list = new ArrayList();
-
+			logger.error("sheet工作表index" + sheetNum);
 			int line = 0;
 			while (rows.hasNext()) {
 				Map scriptureMap = new HashMap();
@@ -300,9 +352,10 @@ public class ScriptureAction {
 					scriptureMap.put("scripture_no", list[1]);
 					scriptureMap.put("type", list[1].substring(0, 1));
 					scriptureMap.put("scripture_text", list[2]);
-					scriptureMap.put("url", list[3]);
+//					scriptureMap.put("url", list[3]);
 					scripture_list.add(scriptureMap);
 					logger.error("第一個單元格的内容" + list[0] + "&&&&共" + dataRowNum +"行");
+					logger.error("第二個單元格的内容" + list[1] + "&&&&共" + dataRowNum +"行");
 				}
 
 				if (line == dataRowNum)
