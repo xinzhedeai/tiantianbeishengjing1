@@ -14,5 +14,5 @@ public interface ScriptureService {
 
 	public List<Scripture> searchScriptures(Map paramMap);
 
-	public int searchScripturesByDate(Map paramMap);
+	public Integer searchScripturesByDate(Map paramMap);
 }

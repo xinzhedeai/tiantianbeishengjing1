@@ -25,7 +25,12 @@ public class ScriptureServiceImpl implements ScriptureService {
 	}
 
 	@Override
-	public int searchScripturesByDate(Map paramMap) {
-		return scriptureMapper.searchScripturesByDate(paramMap);
+	public Integer searchScripturesByDate(Map paramMap) {
+		if(scriptureMapper.searchScripturesByDate(paramMap) != null 
+						&& "".equals(scriptureMapper.searchScripturesByDate(paramMap))){
+			return scriptureMapper.searchScripturesByDate(paramMap);
+		}else{
+			return -1;
+		}
 	}
 }

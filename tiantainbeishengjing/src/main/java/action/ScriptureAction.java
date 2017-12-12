@@ -109,7 +109,7 @@ public class ScriptureAction {
 //		String create_date = paramMap.get("create_date").toString();
 		String type = paramMap.get("scriptureNoFlag").toString();
 		
-		String last_scripture_no = customScriptureMapper.selectLastScriptureNo(paramMap);//获取某个类型经文下最后的日期
+		int last_scripture_no = customScriptureMapper.selectLastScriptureNo(paramMap);//获取某个类型经文下最后的日期
 		String last_date = customScriptureMapper.selectLastDate(paramMap);//获取某个类型经文下最后的日期 
 	    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date currdate = format.parse(last_date);
@@ -128,9 +128,9 @@ public class ScriptureAction {
          String enddate = format.format(currdate);
          System.out.println("增加天数以后的日期：" + enddate);
          paramMap.put("createDate", enddate);
- 		String scriptNoPinyin = paramMap.get("scriptureNoFlag") + 
-				StringUtil.converterToSpell(StringUtil.replaceSpecStr(enddate));
-		paramMap.put("scriptureNo", scriptNoPinyin);
+ 		/*String scriptNoPinyin = paramMap.get("scriptureNoFlag") + 
+				StringUtil.converterToSpell(StringUtil.replaceSpecStr(enddate));*/
+		paramMap.put("scriptureNo", (String)paramMap.get("scriptureNoFlag") + (last_scripture_no + 1));//新添加的经文编号是在当前数据库中最后的一个上加一
 		
 		try {
 			if (customScriptureMapper.insertScriptureByManual(paramMap) > 0) {
@@ -185,7 +185,9 @@ public class ScriptureAction {
 		List readSriptureNoArr = new ArrayList();//查询经文所需编号
 		String type = (String) paramMap.get("type");
 		int scriptureNoNew = scriptureServiceImpl.searchScripturesByDate(paramMap);
-		
+		System.out.println("**********************");
+		System.out.println(scriptureNoNew);
+		System.out.println("**********************");
 		readSriptureNoArr.add(0, type + scriptureNoNew);
 		for(int i = 0; i < memoPeriodArr.length; i++){
 			int tempNo = (scriptureNoNew) - memoPeriodArr[i];//复习经文编号

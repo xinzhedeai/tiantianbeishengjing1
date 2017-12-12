@@ -60,7 +60,7 @@
 	</select>
 	<select id="searchScripturesByDate" parameterType="Map" resultType="Integer">
 		SELECT  
-			substring(scripture_no, 2)<!-- 从第二个字符开始裁剪包含第二个 --> 
+			substring(scripture_no, 2) AS scripture_no<!-- 从第二个字符开始裁剪包含第二个 --> 
 		FROM
 		SCRIPTURE
 		<where>
@@ -81,14 +81,13 @@
 				type = #{scriptureNoFlag}
 			ORDER BY create_date DESC LIMIT 0, 1
 	</select>
-	<select id="selectLastScriptureNo" parameterType="Map" resultType="String">
-		SELECT 
-			create_date
-		FROM
-			scripture
-		WHERE 
-			type = #{scriptureNoFlag}
-		ORDER BY create_date DESC LIMIT 0, 1
+	<select id="selectLastScriptureNo" parameterType="Map" resultType="Integer">
+		SELECT
+			substring(scripture_no, 2) + 0 AS scripturenNo
+		FROM SCRIPTURE
+		WHERE
+			type='A'
+		ORDER BY scripturenNo DESC LIMIT 0, 1
 	</select>
 	
 
