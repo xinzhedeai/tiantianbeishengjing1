@@ -11,6 +11,7 @@ $(function() {
 	if(nowTime.getDay() != 7){
 		$('.alert-warning').css('visibility', 'hidden');
 	}else{
+		$('#type option:gt(1)').hide();
 		$('.alert-warning').css('visibility', 'visible');
 	}
 	$('#importBtn').click(function() {
