@@ -1,6 +1,8 @@
 package normalMapper;
 
 import java.util.List;
+import java.util.Map;
+
 import normalPo.Scripture;
 import normalPo.ScriptureExample;
 import org.apache.ibatis.annotations.Param;
@@ -27,4 +29,6 @@ public interface ScriptureMapper {
     int updateByPrimaryKeySelective(Scripture record);
 
     int updateByPrimaryKey(Scripture record);
+
+	int modScripture(Map paramMap);
 }

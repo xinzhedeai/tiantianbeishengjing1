@@ -40,3 +40,6 @@ document.write('<script type="text/javascript" src="/lib/plugin/plupload-2.1.2/j
 				<script type="text/javascript" src="/lib/plugin/plupload-2.1.2/plupload.full.min.js"></script>\
 				<script type="text/javascript" src="/lib/plugin/plupload-2.1.2/jquery.ui.plupload/jquery.ui.plupload.min.js"></script>\
 				<script type="text/javascript" src="/lib/plugin/plupload-2.1.2/i18n/zh_CN.js"></script>');
+
+//layerUI
+document.write('<script type="text/javascript" src="/lib/js/layer.js"></script>');

@@ -18,5 +18,9 @@ public interface CustomScriptureMapper extends Mapper{
 	int insertScriptureByManual(Map paramMap);
 
 	int selectLastScriptureNo(Map paramMap);
+
+	int modScripture(Map paramMap);
+
+	Map getNextScriptureDate(Map paramMap);
 	
 }

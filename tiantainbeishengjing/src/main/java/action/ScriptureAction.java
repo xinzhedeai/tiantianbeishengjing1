@@ -75,30 +75,65 @@ public class ScriptureAction {
 	private ScriptureMapper scriptureMapper;
 	@Autowired
 	private CustomScriptureMapper customScriptureMapper;
-/*	@ResponseBody
-	@RequestMapping("/addScripture")
-	public JsonResult addScripture(HttpSession session, HttpServletRequest req) throws Exception {
+	
+	@ResponseBody
+	@RequestMapping("/modScripture")
+	public JsonResult modScripture(HttpServletRequest req) throws Exception {
 		JsonResult j = new JsonResult();
 		Map paramMap = new HashMap();
 		paramMap = SpringUtils.getParameterMap(req);
-		Scripture sp = MapToBean(Scripture.class, paramMap);
-		sp.setScriptureNo(paramMap.get("scriptureNoFlag") + sp.getScriptureNo());
-//		sp.setId(MD5Util.toSHA256(DateUtil.nowTimeMilli()));
 		try {
-			if (scriptureMapper.insertSelective(sp) > 0) {
+			if (customScriptureMapper.modScripture(paramMap) > 0) {
 				j.setSuccess(true);
-				j.setMsg("添加经文成功!");
+				j.setMsg(MSG_CONST.UPDATESUCCESS);
 			} else {
 				j.setSuccess(false);
-				j.setMsg("添加失败!");
+				j.setMsg(MSG_CONST.UPDATEFAIL);
 			}
 		} catch (Exception e) {
 			logger.error(e);
 			throw new SysException("发生错误");
 		}
 		return j;
-	}*/
-
+	}
+	
+	@ResponseBody
+	@RequestMapping("/getNextScriptureDate")
+	public JsonResult getNextScriptureDate(HttpServletRequest req) throws Exception {
+		JsonResult j = new JsonResult();
+		Map paramMap = new HashMap();
+		paramMap = SpringUtils.getParameterMap(req);
+		Map resultMap = customScriptureMapper.getNextScriptureDate(paramMap);
+		Date last_date = (Date) resultMap.get("last_create_date");
+		System.out.println(last_date + "最后一天的日期");
+		
+		
+		try {
+			if (last_date != null && !"".equals(last_date)) {
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+				/*SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		        Date currdate = format.parse(last_date);
+		        System.out.println("数据库中最后一节经文的创建日期是：" + currdate);*/
+		        Calendar ca = Calendar.getInstance();
+		        ca.setTime(last_date);
+		        ca.add(Calendar.DATE, 1);// 增加一天
+		        last_date = ca.getTime();
+		        String next_date = format.format(last_date);
+		        System.out.println("增加天数以后的日期：" + next_date);
+		        resultMap.put("next_create_date", next_date);
+		        j.setResult(resultMap);
+				j.setSuccess(true);
+				j.setMsg(MSG_CONST.READSUCCESS);
+			} else {
+				j.setSuccess(false);
+				j.setMsg(MSG_CONST.READFAIL);
+			}
+		} catch (Exception e) {
+			logger.error(e);
+			throw new SysException("发生错误");
+		}
+		return j;
+	}
 	@ResponseBody
 	@RequestMapping("/addScripture")
 	public JsonResult addScripture(HttpSession session, HttpServletRequest req) throws Exception {

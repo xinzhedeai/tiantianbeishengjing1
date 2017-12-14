@@ -90,5 +90,33 @@
 		ORDER BY scripturenNo DESC LIMIT 0, 1
 	</select>
 	
+	<update id="modScripture" parameterType="Map">
+		 update scripture
+    <set >
+      <if test="scripture_text != null and scripture_text != ''" >
+        scripture_text = #{scripture_text},
+      </if>
+      <if test="url != null and url != ''" >
+        url = #{url},
+      </if>
+    </set>
+    <where>
+    	scripture_no = #{scripture_no}
+    </where> 
+	</update>
+	
+	<select id="getNextScriptureDate" parameterType="Map" resultType="Map">
+		SELECT 
+			SUBSTRING(scripture_no, 2) + 0 AS scriptureNo,
+			create_date AS last_create_date
+		FROM
+			SCRIPTURE
+		<where>
+			<if test="type != null and type != ''">
+				type = #{type}
+			</if>
+		</where>
+		ORDER BY scriptureNo DESC LIMIT 0, 1
+	</select>
 
 </mapper>

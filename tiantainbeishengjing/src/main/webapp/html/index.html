@@ -14,7 +14,8 @@
 .row{width: 70%; margin: 0 auto;}
 .switch {float: none;}
 .scriptureNo {width: 81%; display: inline-block;}
-.scriptureNoFlag {width: 18%; display: inline-block;}
+.scriptureNoFlag {width: 20%; display: inline-block; margin-right:10px;}
+.scriptureNoFlag + strong{color: red;}
 #add_scripture_modal label {display: block;}
 .alert-warning{text-align:center;font-weight: bold;font-size:28px;}
 .form-group-type{width:21%; display:inline-block; margin-right: 21px !important;}
@@ -23,6 +24,8 @@
 /* 复制提示 */
 .copy-tips{position:fixed;z-index:999;bottom:50%;left:50%;margin:0 0 -20px -80px;background-color:rgba(0, 0, 0, 0.2);filter:progid:DXImageTransform.Microsoft.Gradient(startColorstr=#30000000, endColorstr=#30000000);padding:6px;}
 .copy-tips-wrap{padding:10px 20px;text-align:center;border:1px solid #F4D9A6;background-color:#FFFDEE;font-size:14px;}
+
+textarea.form-control {width: 90%; display:inline-block; vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -58,23 +61,22 @@
 						</div>
 						<div class="login-button">
 							<button type="button"
+								class="btn btn-default btn-sm index-send-btn" id="importBtn">
+								<!-- <span class="glyphicon glyphicon-plus"></span> -->
+								导入
+							</button>
+							<button type="button"
 								class="btn btn-success btn-sm index-send-btn " id="searchBtn">
 								<span class="glyphicon glyphicon-search"></span>
-								经文作业搜索
+								经文搜索
 							</button>
-							<button type="button"
-								class="btn btn-danger btn-sm index-send-btn "
-								data-toggle="modal" data-target="#add_scripture_modal">
+							<button type="button" class="btn btn-danger btn-sm index-send-btn "
+								id="add_scripture_btn">
 							<span class="glyphicon glyphicon-plus"></span>
-							添加背诵经文
+							添加经文
 							</button>
 							<button type="button"
-								class="btn btn-primary btn-sm index-send-btn " id="importBtn">
-								<span class="glyphicon glyphicon-plus"></span>
-								批量导入
-							</button>
-							<button type="button"
-								class="btn btn-default btn-sm index-send-btn " id="copy">
+								class="btn btn-primary btn-sm index-send-btn " id="copy">
 								<span class="glyphicon glyphicon-hand-up"></span>
 								一键复制
 							</button>
@@ -116,13 +118,13 @@
 								<form role="form">
 									<div class="form-group">
 										<label for="logTitle">经文编号</label> <select type="text"
-											name="scriptureNoFlag" class="form-control scriptureNoFlag">
+											name="scriptureNoFlag" id="type" class="form-control scriptureNoFlag">
 											<option value="A">新约背节</option>
 											<option value="B">旧约背节</option>
 											<option value="C">背章</option>
 											<option value="D">诗篇</option>
 											<option value="E">箴言</option>
-										</select><!--  <input type="text" name="scriptureNo"
+										</select><strong id="scrpture_create_date">2017-12-13</strong><!--  <input type="text" name="scriptureNo"
 											class="form-control scriptureNo" placeholder="请输入经文编号"> -->
 									</div>
 									<div class="form-group">
@@ -137,6 +139,7 @@
 										<label for="logContent">内容</label>
 										<textarea class="form-control" rows="3" name="scriptureText"></textarea>
 									</div>
+									<input type="reset" id="reset_btn" class="hide">
 								</form>
 							</div>
 							<div class="modal-footer">

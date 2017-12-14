@@ -70,11 +70,20 @@ $(function() {
 		todayHighlight: 1,
 		todayBtn:  1,
 	    format: 'yyyy-mm-dd'
-	});
+	}).on('changeDate', function(ev){
+		/*formatDate(ev.timeStamp)
+		console.log(ev);
+	    layer.alert('时间改变了。。。。。。'+formatDate(ev.timeStamp));*/
+		getScripture();
+	});;
 	$("#copy").zclip({
 		path: '/lib/js/ZeroClipboard.swf',
 		copy: function(){
-			return $('#previewArea').html().replace(/<br><hr>/g,'\n');
+			var str = $('#previewArea').html().replace(/<br><hr>/g,'\n');
+			str = str.replace(/<([a-zA-Z]+)\s*[^><]*>/g,"<$1>");//去掉属性
+			str = str.replace(new RegExp("<span([^>]{0,})>", "g"), "");//去掉<span>
+			str = str.replace(new RegExp("</span>", "g"), "");//去掉</span>
+			return str;
 		},
 		afterCopy: function(){
 //			alert('已成功复制到粘贴板上了~');
@@ -83,15 +92,58 @@ $(function() {
              $(".copy-tips").fadeOut(3000);
 		}
 	});
+	//修改经文
+	$(document).on('dblclick', '#previewArea span', function(){
+		var editable_span_dom = '<textarea type="text" class="form-control">'+ $(this).html() +'</textarea>'+
+								'<button type="button" class="btn btn-primary" onclick="modScripture(this)" data-no="'+ $(this).data('no') +'" data-type="'+ $(this).data('type') +'"><span class="glyphicon glyphicon-ok"></span>保存</button>';
+		$(this).after(editable_span_dom).hide();
+	});
+	
+	
+	$('#add_scripture_btn').click(function(){
+		$('#add_scripture_modal').modal();
+	});
+	
+	$('#add_scripture_modal').on('shown.bs.modal', function () {
+		getNextScriptureDate();
+	});
 });
+
+
 
 function addScripture() {
 	$.post('/scriptureAction/addScripture.action', $(
 			'#add_scripture_modal form').serialize(), function(result) {
 		if (result.success) {
-			alert(result.msg);
+			$('#reset_btn').click();
+			layer.alert(result.msg);
+			getNextScriptureDate();
 		} else {
-			alert(result.msg);
+			layer.alert(result.msg);
+		}
+	}, "JSON");
+}
+/**
+ * params[0]:经文编号
+ * params[1]:经文内容/url
+ * params[2]:修改的内容类型  如果为’url‘修改的则是连接。否则默认修改时圣经内容 
+ * 
+ */
+function modScripture(target){
+	var data_obj = $(target).data(), type = data_obj.type, reqParam = {};
+
+	reqParam.scripture_no = data_obj.no;
+	if(type == 'url'){
+		reqParam.url = $(target).prev().val();
+	}else{
+		reqParam.scripture_text = $(target).prev().val();
+	}
+	$.post('/scriptureAction/modScripture.action', reqParam, function(result) {
+		if (result.success) {
+			layer.alert(result.msg);
+			$('#searchBtn').trigger('click');
+		} else {
+			layer.alert(result.msg);
 		}
 	}, "JSON");
 }
@@ -106,14 +158,27 @@ function getScripture() {
 						scriptureStr += result[i].create_date + '</br><hr/>';
 					if(i == 1)
 						scriptureStr += '复习:</br><hr/>';
-					scriptureStr += result[i].scripture_text + '</br><hr/>';
-					url = result[i].url ? result[i].url : '';
+					scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
+									result[i].scripture_text + '</span></br><hr/>';
+					url = result[i].url ? '<span data-no="'+ result[i].scripture_no +'" data-type="url">' + result[i].url + '</span>' : '';
 				}
 				scriptureStr += url;
 				$('#previewArea').html(scriptureStr);
 			}
 		} else {
 			alert(result.msg);
+		}
+	}, "JSON");
+}
+function getNextScriptureDate(){
+	var reqParam = {};
+	reqParam.type = $('#type').val();
+	$.post('/scriptureAction/getNextScriptureDate.action', reqParam, function(res) {
+		if (res.success) {
+//			layer.alert(res.msg);
+			$('#scrpture_create_date').text(res.result.next_create_date);
+		} else {
+			layer.alert(res.msg);
 		}
 	}, "JSON");
 }
