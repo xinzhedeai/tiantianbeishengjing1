@@ -86,7 +86,7 @@
 			substring(scripture_no, 2) + 0 AS scripturenNo
 		FROM SCRIPTURE
 		WHERE
-			type='A'
+			type=#{scriptureNoFlag}
 		ORDER BY scripturenNo DESC LIMIT 0, 1
 	</select>
 	

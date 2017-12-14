@@ -99,13 +99,21 @@ $(function() {
 		$(this).after(editable_span_dom).hide();
 	});
 	
-	
+	//添加经文
 	$('#add_scripture_btn').click(function(){
 		$('#add_scripture_modal').modal();
 	});
-	
+	//模态款彻底显示后逻辑处理
 	$('#add_scripture_modal').on('shown.bs.modal', function () {
 		getNextScriptureDate();
+	});
+	//经文类型修改后,实时显示下一个日期
+	$('#type').change(function(){
+		getNextScriptureDate();
+	});
+	//搜索条件改变时，自动搜索
+	$('#search_form_type').change(function(){
+		getScripture();
 	});
 });
 
