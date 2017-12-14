@@ -124,7 +124,8 @@ function addScripture() {
 	$.post('/scriptureAction/addScripture.action', $(
 			'#add_scripture_modal form').serialize(), function(result) {
 		if (result.success) {
-			$('#reset_btn').click();
+//			$('#reset_btn').click();
+			$('#sripture_content, #scripture_url').val('');
 			layer.alert(result.msg);
 			getNextScriptureDate();
 		} else {
@@ -163,15 +164,26 @@ function getScripture() {
 			var result = result.result, scriptureStr = '', url = '';
 			if (result && result.length > 0) {
 				for (var i = 0; i < result.length; i++) {
-					if(i == 0)
+					if(i == 0){
 						scriptureStr += result[i].create_date + '</br><hr/>';
-					if(i == 1)
+						url = result[i].url ? '<span data-no="'+ result[i].scripture_no +'" data-type="url">' + result[i].url + '</span>' : '';
+						scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
+						result[i].scripture_text + '</span></br><hr/>';
+						continue;
+					}
+					if(i == 1){
 						scriptureStr += '复习:</br><hr/>';
+						scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
+						result[i].scripture_text + '</span></br><hr/>';
+						continue;
+					}
 					scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
 									result[i].scripture_text + '</span></br><hr/>';
-					url = result[i].url ? '<span data-no="'+ result[i].scripture_no +'" data-type="url">' + result[i].url + '</span>' : '';
+					
+					
 				}
 				scriptureStr += url;
+				console.log(scriptureStr);
 				$('#previewArea').html(scriptureStr);
 			}
 		} else {
