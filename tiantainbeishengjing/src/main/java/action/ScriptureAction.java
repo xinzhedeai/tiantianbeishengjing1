@@ -151,7 +151,7 @@ public class ScriptureAction {
         System.out.println("现在的日期是：" + currdate);
         Calendar ca = Calendar.getInstance();
          ca.setTime(currdate);
-       //在最后日期上 新约背节和旧约背节添加一天 （背章、诗篇、箴言是7天）
+//       如果将要添加经文类型是背章、诗篇、箴言,那么时间是周天的话，需要将日期加2.
         /* if("A".equals(type) || "B".equals(type)){
         	 ca.add(Calendar.DATE, 1);// num为增加的天数，可以改变的
          }else{
@@ -159,6 +159,13 @@ public class ScriptureAction {
          }*/
          
          ca.add(Calendar.DATE, 1);// num为增加的天数，可以改变的
+         if("C".equals(type) || "D".equals(type) || "E".equals(type)){
+        	 int week = ca.get(Calendar.DAY_OF_WEEK);
+        	 System.out.println(week + "为1则为星期天");
+        	 if(week == 1){
+        		ca.add(Calendar.DATE, 1);//如果为周天，那么跳过这个日期，直接到星期一
+        	 }
+         }
          currdate = ca.getTime();
          String enddate = format.format(currdate);
          System.out.println("增加天数以后的日期：" + enddate);

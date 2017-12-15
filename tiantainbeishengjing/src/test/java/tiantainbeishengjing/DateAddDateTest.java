@@ -24,5 +24,13 @@ public class DateAddDateTest {
          String enddate = format.format(currdate);
          System.out.println("增加天数以后的日期：" + enddate);
 	}
+	@Test
+	public void week(){
+		Calendar cal=Calendar.getInstance();
+		cal.setTime(new Date());
+		int week = cal.get(Calendar.DAY_OF_WEEK);
+		System.out.println(week);
+		
+	}
 
 }

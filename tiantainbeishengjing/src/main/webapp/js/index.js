@@ -108,13 +108,18 @@ $(function() {
 	$('#add_scripture_modal').on('shown.bs.modal', function () {
 		getNextScriptureDate();
 	});
-	//经文类型修改后,实时显示下一个日期
+	//模态框中经文类型修改后,实时显示下一个日期
 	$('#type').change(function(){
 		getNextScriptureDate();
 	});
 	//搜索条件改变时，自动搜索
 	$('#search_form_type').change(function(){
-		getScripture();
+		/**
+		 * 当搜索条件-经文类型发生改变时，获取当前最新经文所属的日期
+		 * 也就是通过getNextScriptureDate()返回的日期数减一
+		 * 日期减一天的逻辑已经在getNextScriptureDate方法中处理了。
+		 */
+		getNextScriptureDate();
 	});
 });
 
@@ -167,15 +172,15 @@ function getScripture() {
 					if(i == 0){
 						scriptureStr += result[i].create_date + '</br><hr/>';
 						url = result[i].url ? '<span data-no="'+ result[i].scripture_no +'" data-type="url">' + result[i].url + '</span>' : '';
-						scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
+						/*scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
 						result[i].scripture_text + '</span></br><hr/>';
-						continue;
+						continue;*/
 					}
 					if(i == 1){
 						scriptureStr += '复习:</br><hr/>';
-						scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
+						/*scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
 						result[i].scripture_text + '</span></br><hr/>';
-						continue;
+						continue;*/
 					}
 					scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
 									result[i].scripture_text + '</span></br><hr/>';
@@ -187,17 +192,27 @@ function getScripture() {
 				$('#previewArea').html(scriptureStr);
 			}
 		} else {
-			alert(result.msg);
+			layer.alert(result.msg);
 		}
 	}, "JSON");
 }
 function getNextScriptureDate(){
 	var reqParam = {};
-	reqParam.type = $('#type').val();
+	reqParam.type = $('#add_scripture_modal').hasClass('in') ? $('#type').val() : $('#search_form_type').val();//搜索条件类型和模态框中的类型两种情况
 	$.post('/scriptureAction/getNextScriptureDate.action', reqParam, function(res) {
 		if (res.success) {
 //			layer.alert(res.msg);
-			$('#scrpture_create_date').text(res.result.next_create_date);
+			if($('#add_scripture_modal').hasClass('in')){//当模态框显示的时候
+				$('#scrpture_create_date').text(res.result.next_create_date);
+			}else{
+//				var next_date = new Date(res.result.next_create_date),
+//				current_date = +next_date - 1000*60*60*24; //原时间减去一天
+//				$('.createDate').val(formatDate(new Date(current_date)));
+				$('.createDate').val(res.result.last_create_date);
+				//由于经文类型改变后获取的时候，不能再查询经文接口调用前完成赋值，所以需要将查询经文的接口写在这里。
+				getScripture();
+			}
+			
 		} else {
 			layer.alert(res.msg);
 		}
