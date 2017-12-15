@@ -26,6 +26,7 @@ body{background-color: rgb(204, 232, 207);}
 .copy-tips{position:fixed;z-index:999;bottom:50%;left:50%;margin:0 0 -20px -80px;background-color:rgba(0, 0, 0, 0.2);filter:progid:DXImageTransform.Microsoft.Gradient(startColorstr=#30000000, endColorstr=#30000000);padding:6px;}
 .copy-tips-wrap{padding:10px 20px;text-align:center;border:1px solid #F4D9A6;background-color:#FFFDEE;font-size:14px;}
 
+#previewArea{min-height: 300px;}
 textarea.form-control {width: 89%; display:inline-block; vertical-align:middle;}
 </style>
 </head>
@@ -104,7 +105,9 @@ textarea.form-control {width: 89%; display:inline-block; vertical-align:middle;}
 						</div>
 					</form>
 				</div> -->
-				<div id="previewArea" class="clearfix">尚未查找到相关数据~~~~</div>
+				<div id="previewArea" class="clearfix">
+					<div class="alert alert-danger"> <strong>很抱歉~!！</strong>暂未找到符合查找条件的经文内容(┳＿┳)...</div>
+				</div>
 				<!-- 模态弹出窗内容 -->
 				<div class="modal fade" id="add_scripture_modal">
 					<div class="modal-dialog">
@@ -116,6 +119,7 @@ textarea.form-control {width: 89%; display:inline-block; vertical-align:middle;}
 								<h4 class="modal-title">背诵经文</h4>
 							</div>
 							<div class="modal-body">
+								<div class="alert alert-danger" id="add_scripture_remind">日期为周日,背章、诗篇和箴言不需要添加新的经文哟~</div>
 								<form role="form">
 									<div class="form-group">
 										<label for="logTitle">经文编号</label> <select type="text"
@@ -128,10 +132,6 @@ textarea.form-control {width: 89%; display:inline-block; vertical-align:middle;}
 										</select><strong id="scrpture_create_date">2017-12-13</strong><!--  <input type="text" name="scriptureNo"
 											class="form-control scriptureNo" placeholder="请输入经文编号"> -->
 									</div>
-									<div class="form-group">
-										<label for="logTitle">视频链接</label> <input type="text"
-											name="url" id="scripture_url" class="form-control">
-									</div>
 							<!-- 		<div class="form-group">
 										<label for="logContent">日期</label> <input class="form-control createDate"
 											name="createDate" type="text" value="2017-12-25">
@@ -139,6 +139,10 @@ textarea.form-control {width: 89%; display:inline-block; vertical-align:middle;}
 									<div class="form-group">
 										<label for="logContent">内容</label>
 										<textarea class="form-control" id="sripture_content" rows="3" name="scriptureText"></textarea>
+									</div>
+									<div class="form-group video_url">
+										<label for="logTitle">视频链接</label> <input type="text"
+											name="url" id="scripture_url" class="form-control">
 									</div>
 									<input type="reset" id="reset_btn" class="hide">
 								</form>

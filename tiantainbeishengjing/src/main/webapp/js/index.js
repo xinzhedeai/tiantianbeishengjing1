@@ -7,13 +7,13 @@ $(function() {
 	$('#searchBtn').click(function() {
 		getScripture();
 	});
-	var nowTime = new Date()
+	/*var nowTime = new Date()
 	if(nowTime.getDay() != 7){
 		$('.alert-warning').css('visibility', 'hidden');
 	}else{
 		$('#type option:gt(1)').hide();
 		$('.alert-warning').css('visibility', 'visible');
-	}
+	}*/
 	$('#importBtn').click(function() {
 		$('#upload_scripture_modal').modal();
 		/*var uploadDiv = $('#upload_scripture_div');
@@ -107,6 +107,7 @@ $(function() {
 	//添加经文
 	$('#add_scripture_btn').click(function(){
 		$('#add_scripture_modal').modal();
+		$("#add_scripture_remind").hide();
 	});
 	//模态款彻底显示后逻辑处理
 	$('#add_scripture_modal').on('shown.bs.modal', function () {
@@ -195,7 +196,8 @@ function getScripture() {
 				$('#previewArea').html(scriptureStr);
 			}
 		} else {
-			layer.alert(result.msg);
+//			layer.alert(result.msg);
+			$('#previewArea').html('<div class="alert alert-danger"> <strong>很抱歉~!！</strong>暂未找到符合查找条件的经文内容(┳＿┳)...</div>');
 		}
 	}, "JSON");
 }
@@ -207,6 +209,22 @@ function getNextScriptureDate(){
 //			layer.alert(res.msg);
 			if($('#add_scripture_modal').hasClass('in')){//当模态框显示的时候
 				$('#scrpture_create_date').text(res.result.next_create_date);
+				//周日经文添加提示处理
+				var next_create_date = new Date(res.result.next_create_date);
+				var scripture_type = $('#type').val();
+				if(scripture_type == 'C' || scripture_type == 'D' || scripture_type == 'E'){
+					if(next_create_date.getDay() == 0){//经文日期为周天的时候
+//						$('#type option:gt(1)').hide();//隐藏背章、诗篇、箴言选项
+						$("#add_scripture_remind").show('slow');
+					}else{
+						$("#add_scripture_remind").hide('slow');
+					}
+				}else{
+					$("#add_scripture_remind").hide('slow');
+				}
+				//非新约背节  视频链接隐藏
+				scripture_type != 'A' ? $('.video_url').hide('slow') : $('.video_url').show('slow');
+				
 			}else{
 //				var next_date = new Date(res.result.next_create_date),
 //				current_date = +next_date - 1000*60*60*24; //原时间减去一天
