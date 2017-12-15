@@ -213,12 +213,7 @@ function getNextScriptureDate(){
 				var next_create_date = new Date(res.result.next_create_date);
 				var scripture_type = $('#type').val();
 				if(scripture_type == 'C' || scripture_type == 'D' || scripture_type == 'E'){
-					if(next_create_date.getDay() == 0){//经文日期为周天的时候
-//						$('#type option:gt(1)').hide();//隐藏背章、诗篇、箴言选项
-						$("#add_scripture_remind").show('slow');
-					}else{
-						$("#add_scripture_remind").hide('slow');
-					}
+					next_create_date.getDay() == 0 ? $("#add_scripture_remind").show('slow') : $("#add_scripture_remind").hide('slow');
 				}else{
 					$("#add_scripture_remind").hide('slow');
 				}
