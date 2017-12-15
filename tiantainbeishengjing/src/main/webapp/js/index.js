@@ -80,6 +80,7 @@ $(function() {
 	$("#copy").zclip({
 		path: '/lib/js/ZeroClipboard.swf',
 		copy: function(){
+			$('.glyphicon-minus').parent().click();//取消编辑事件触发
 			var str = $('#previewArea').html().replace(/<br><hr>/g,'\n');
 			str = str.replace(/<([a-zA-Z]+)\s*[^><]*>/g,"<$1>");//去掉属性
 			str = str.replace(new RegExp("<span([^>]{0,})>", "g"), "");//去掉<span>
@@ -96,7 +97,10 @@ $(function() {
 	//修改经文
 	$(document).on('dblclick', '#previewArea span', function(){
 		var editable_span_dom = '<textarea type="text" class="form-control">'+ $(this).html() +'</textarea>'+
-								'<button type="button" class="btn btn-primary" onclick="modScripture(this)" data-no="'+ $(this).data('no') +'" data-type="'+ $(this).data('type') +'"><span class="glyphicon glyphicon-ok"></span>保存</button>';
+								'<button type="button" class="btn btn-primary" onclick="modScripture(this)" data-no="'+ $(this).data('no') +'" data-type="'+ $(this).data('type') +'">\
+								<span class="glyphicon glyphicon-ok"></span></button>\
+								<button type="button" data-no="'+ $(this).data('no') +'" class="btn btn-danger" onclick="cancelOperate(this)">\
+								<span class="glyphicon glyphicon-minus"></span></button>';
 		$(this).after(editable_span_dom).hide();
 	});
 	
@@ -162,6 +166,12 @@ function modScripture(target){
 		}
 	}, "JSON");
 }
+function cancelOperate(target){
+//	$spanTarget = $.parseJSON(decodeURIComponent(spanTarget));
+	$(target).prevUntil('span').remove().end().remove();//移除操作按钮
+	$('#previewArea span[data-no="'+ $(target).data('no') +'"]').show();//回复经文只读状态
+	
+}
 function getScripture() {
 	$.post('/scriptureAction/searchScripturesByDate.action', $('#seachForm')
 			.serialize(), function(result) {
@@ -172,19 +182,12 @@ function getScripture() {
 					if(i == 0){
 						scriptureStr += result[i].create_date + '</br><hr/>';
 						url = result[i].url ? '<span data-no="'+ result[i].scripture_no +'" data-type="url">' + result[i].url + '</span>' : '';
-						/*scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
-						result[i].scripture_text + '</span></br><hr/>';
-						continue;*/
 					}
 					if(i == 1){
 						scriptureStr += '复习:</br><hr/>';
-						/*scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
-						result[i].scripture_text + '</span></br><hr/>';
-						continue;*/
 					}
 					scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
 									result[i].scripture_text + '</span></br><hr/>';
-					
 					
 				}
 				scriptureStr += url;
