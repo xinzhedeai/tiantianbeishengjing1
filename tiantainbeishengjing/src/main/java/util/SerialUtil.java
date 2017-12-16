@@ -15,6 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.alibaba.fastjson.JSON;
+
 import exception.SysException;
 
 
@@ -75,7 +77,12 @@ public class SerialUtil {
 		return list;
 	}
 
-	
+	public static List JsonToList(Object json) {
+		String jsonStr = null;
+		if (json instanceof String) jsonStr = (String)json;
+		else jsonStr = json.toString();
+		return JSON.parseArray(jsonStr);
+	}
 	
 }
 

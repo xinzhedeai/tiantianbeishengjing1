@@ -24,6 +24,7 @@ document.write('<link rel="stylesheet" type="text/css" href="/lib/plugin/pluploa
 
 //20150902:添加项目公用js
 document.write('<script type="text/javascript" src="/lib/js/jquery-1.11.3.js"></script>\
+		<script type="text/javascript" src="/lib/js/jquery.zclip.js"></script>\
 		<script type="text/javascript" src="/lib/js/bootstrap.min.js"></script>\
 		<script type="text/javascript" src="/lib/js/bootstrap-datetimepicker.js"></script>\
 		<script type="text/javascript" src="/lib/js/bootstrap-datetimepicker.zh-CN.js"></script>\
@@ -39,3 +40,6 @@ document.write('<script type="text/javascript" src="/lib/plugin/plupload-2.1.2/j
 				<script type="text/javascript" src="/lib/plugin/plupload-2.1.2/plupload.full.min.js"></script>\
 				<script type="text/javascript" src="/lib/plugin/plupload-2.1.2/jquery.ui.plupload/jquery.ui.plupload.min.js"></script>\
 				<script type="text/javascript" src="/lib/plugin/plupload-2.1.2/i18n/zh_CN.js"></script>');
+
+//layerUI
+document.write('<script type="text/javascript" src="/lib/js/layer.js"></script>');

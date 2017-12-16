@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import customMapper.CustomScriptureMapper;
 import exception.SysException;
-import normalPo.Scripture;
 import pageModel.EasyUIGridObj;
+import pageModel.Scripture;
 import service.ScriptureService;
 
 public class ScriptureServiceImpl implements ScriptureService {
@@ -20,11 +20,6 @@ public class ScriptureServiceImpl implements ScriptureService {
 	}
 
 	@Override
-	public List<Scripture> searchScriptures(Map paramMap) {
-		return scriptureMapper.searchScriptures(paramMap);
-	}
-
-	@Override
 	public Integer searchScripturesByDate(Map paramMap) {
 		if(scriptureMapper.searchScripturesByDate(paramMap) != null 
 						&& !"".equals(scriptureMapper.searchScripturesByDate(paramMap))){
@@ -32,5 +27,10 @@ public class ScriptureServiceImpl implements ScriptureService {
 		}else{
 			return -1;
 		}
+	}
+
+	@Override
+	public List<Scripture> searchScriptures(Map paramMap) {
+		return scriptureMapper.searchScriptures(paramMap);
 	}
 }

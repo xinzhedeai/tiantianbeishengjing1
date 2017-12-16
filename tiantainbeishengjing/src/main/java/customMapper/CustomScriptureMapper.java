@@ -3,13 +3,11 @@ package customMapper;
 import java.util.List;
 import java.util.Map;
 
-import normalPo.Scripture;
+import pageModel.Scripture;
 import tk.mybatis.mapper.common.Mapper;
 @SuppressWarnings("rawtypes")
 public interface CustomScriptureMapper extends Mapper{
 	int insertScripture(Map map);
-
-	List<Scripture> searchScriptures(Map paramMap);
 
 	Integer searchScripturesByDate(Map paramMap);
 
@@ -22,5 +20,7 @@ public interface CustomScriptureMapper extends Mapper{
 	int modScripture(Map paramMap);
 
 	Map getNextScriptureDate(Map paramMap);
+
+	List<Scripture> searchScriptures(Map paramMap);
 	
 }

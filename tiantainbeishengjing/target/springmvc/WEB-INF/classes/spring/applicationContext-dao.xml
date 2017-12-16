@@ -62,7 +62,7 @@
 		<!-- 如果要扫描多个包中间用逗号或者分号分隔
 		由于这里设置了扫描所以SqlMapConfig.xml中的扫描mapper配置可以去掉了
 		 -->
-		<property name="basePackage" value="normalMapper, customMapper, mapper"></property>
+		<property name="basePackage" value="normalMapper,customMapper"></property>
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
 	</bean>
 </beans>

@@ -48,12 +48,9 @@ import org.springframework.web.multipart.MultipartRequest;
 
 import customMapper.CustomScriptureMapper;
 import exception.SysException;
-import normalMapper.ScriptureMapper;
-import normalMapper.UserMapper;
-import normalPo.Scripture;
-import normalPo.ScriptureExample;
 import pageModel.EasyUIGridObj;
 import pageModel.JsonResult;
+import pageModel.Scripture;
 import service.ScriptureService;
 import util.BeanMapConvertUtil;
 import util.DateUtil;
@@ -71,8 +68,8 @@ public class ScriptureAction {
 
 	@Autowired
 	private ScriptureService scriptureServiceImpl;
-	@Autowired
-	private ScriptureMapper scriptureMapper;
+//	@Autowired
+//	private ScriptureMapper scriptureMapper;
 	@Autowired
 	private CustomScriptureMapper customScriptureMapper;
 	

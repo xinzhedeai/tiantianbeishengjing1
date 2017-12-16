@@ -4,20 +4,119 @@
 	<insert id="insertScripture" parameterType="Map">
 		replace into scripture
 		(
-			<!-- id, -->
-			scripture_no,
-			scripture_text,
-			url,
-			create_date
-		)               
-		values          
-		(      
-			<!-- UUID(),  -->
-			#{scripture_no},
-			#{scripture_text},
-			#{url}, 
-			#{create_date}
+		<!-- id, -->
+		scripture_no,
+		scripture_text,
+		url,
+		create_date,
+		type
+		)
+		values
+		(
+		<!-- UUID(), -->
+		#{scripture_no},
+		#{scripture_text},
+		#{url},
+		#{create_date},
+		#{type}
 		)
 	</insert>
+		<insert id="insertScriptureByManual" parameterType="Map">
+		insert into scripture
+		(
+		scripture_no,
+		scripture_text,
+		url,
+		create_date,
+		type
+		)
+		values
+		(
+		<!-- UUID(), -->
+		#{scriptureNo},
+		#{scriptureText},
+		#{url},
+		#{createDate},
+		#{scriptureNoFlag}
+		)
+	</insert>
+
 	
+	<select id="searchScriptures" parameterType="Map" resultType="Map">
+		SELECT 
+			*
+		 FROM
+		scripture
+		<where>
+			<if test="readSriptureNoList != null and readSriptureNoList != ''">
+				scripture_no IN
+				<foreach collection="readSriptureNoList" item="item" index="index"
+					open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+			ORDER BY create_date DESC
+	</select>
+	<select id="searchScripturesByDate" parameterType="Map" resultType="Integer">
+		SELECT  
+			substring(scripture_no, 2) AS scripture_no<!-- 从第二个字符开始裁剪包含第二个 --> 
+		FROM
+		SCRIPTURE
+		<where>
+			<if test="type != null and type != ''">
+				type = #{type}
+			</if>
+			<if test="createDate != null and createDate != ''">
+				AND create_date = #{createDate}
+			</if>
+		</where>
+	</select>
+	<select id="selectLastDate" parameterType="Map" resultType="String">
+			SELECT 
+				create_date
+			FROM
+				scripture
+			WHERE 
+				type = #{scriptureNoFlag}
+			ORDER BY create_date DESC LIMIT 0, 1
+	</select>
+	<select id="selectLastScriptureNo" parameterType="Map" resultType="Integer">
+		SELECT
+			substring(scripture_no, 2) + 0 AS scripturenNo
+		FROM SCRIPTURE
+		WHERE
+			type=#{scriptureNoFlag}
+		ORDER BY scripturenNo DESC LIMIT 0, 1
+	</select>
+	
+	<update id="modScripture" parameterType="Map">
+		 update scripture
+    <set >
+      <if test="scripture_text != null and scripture_text != ''" >
+        scripture_text = #{scripture_text},
+      </if>
+      <if test="url != null and url != ''" >
+        url = #{url},
+      </if>
+    </set>
+    <where>
+    	scripture_no = #{scripture_no}
+    </where> 
+	</update>
+	
+	<select id="getNextScriptureDate" parameterType="Map" resultType="Map">
+		SELECT 
+			SUBSTRING(scripture_no, 2) + 0 AS scriptureNo,
+			create_date AS last_create_date
+		FROM
+			SCRIPTURE
+		<where>
+			<if test="type != null and type != ''">
+				type = #{type}
+			</if>
+		</where>
+		ORDER BY scriptureNo DESC LIMIT 0, 1
+	</select>
+
 </mapper>

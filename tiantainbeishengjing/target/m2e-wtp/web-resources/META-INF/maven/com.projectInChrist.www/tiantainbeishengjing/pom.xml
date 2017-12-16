@@ -22,7 +22,7 @@
         <targetModelPackage>po</targetModelPackage>
         <targetXMLPackage>mapper</targetXMLPackage>
         <mapper.version>3.1.0</mapper.version>
-        <pagehelper.version>3.7.4</pagehelper.version>
+        <pagehelper.version>4.1.2</pagehelper.version>
         <mysql.version>5.1.37</mysql.version>
 	</properties>
   	<dependencies>

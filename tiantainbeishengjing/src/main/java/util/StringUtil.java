@@ -75,7 +75,7 @@ public class StringUtil {
         return str == null || str.length() == 0;
     }
 
-
+    
     public static String remove(String str, char remove) {
         if (isEmpty(str) || str.indexOf(remove) == -1) {
             return str;
@@ -870,23 +870,6 @@ public class StringUtil {
         }  
         return pinyinName;  
     }  
-    public static String obj2String(Object obj) {
-		if (obj != null) {
-			if (obj instanceof String) return (String) obj;
-			else if (obj instanceof Date) {
-				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-				return df.format(obj);
-			} else {
-				try {
-					return obj.toString();
-				} catch (Exception e) {
-					logger.error(e);
-					return "";
-				}
-			}
-		}
-		return "";
-}
     public static String toUtf8String(String s) { 
         StringBuffer sb = new StringBuffer(); 
         for (int i = 0; i < s.length(); i++) { 
@@ -941,20 +924,166 @@ public class StringUtil {
         } 
         return s; 
     }
-	
-    /**
-     * 正则替换所有特殊字符
-     * @param str
-     * @return
-     */  
-    public static String replaceSpecStr(String str){
-    	if (null!=str && !"".equals(str.trim())) {
-//    		String regEx="[\\s~·`!！@#￥$%^……&*（()）\\-——\\-_=+【\\[\\]】｛{}｝\\|、\\\\；;：:‘'“”\"，,《<。.》>、/？?]";
-    		String regEx="[\\s~·`!！@#￥$%^……&*（()）\\-——\\-_=+【\\[\\]】｛{}｝\\|、\\\\；;：:‘'“”\"，,《<。》>、/？?]";//不包含.
-    		Pattern p = Pattern.compile(regEx);
-    		Matcher m = p.matcher(str);
-    		return m.replaceAll("");
-    	}
-    	return null;
-    }
+    public static String obj2String(Object obj) {
+		if (obj != null) {
+			if (obj instanceof String) return (String) obj;
+			else if (obj instanceof Date) {
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+				return df.format(obj);
+			} else {
+				try {
+					return obj.toString();
+				} catch (Exception e) {
+					logger.error(e);
+					return "";
+				}
+			}
+		}
+		return "";
+}
+
+
+/** 
+ * 去除字符串中多余的空格 
+ * @param s 
+ * @return 去除多余空格后的字符串 
+ */ 
+public static String removeExtraSpace (String s) {
+		return s.replaceAll("[\\s*]+", " ");
+}
+
+public static boolean haveChineseChar(String s) {
+   String regEx = "[\\u4e00-\\u9fa5]";      
+    Pattern p = Pattern.compile(regEx);      
+    Matcher m = p.matcher(s);      
+    while (m.find()) {      
+    		return true;
+    }      
+   return false;
+}
+
+public static boolean haveSpecialChar(String s) {
+   if (s == null) return false;
+   return !s.matches("[a-zA-Z0-9]*");
+}
+
+public static boolean isDigital(String s) {
+   if (s == null) return false;
+   Pattern pattern = Pattern.compile("[0-9]*"); 
+   return pattern.matcher(s).matches();  
+}
+
+private final static String[][] FilterChars = { { "<", "&lt;" }, { ">", "&gt;" }, { " ", "&nbsp;" }, { "\"", "&quot;" },
+		{ "&", "&amp;" }, { "/", "&#47;" }, { "\\", "&#92;" }, { "\n", "<br>" }, {"'", ""}, {"%'", ""} };
+private final static String[][] FilterScriptChars = { { "\n", "\'+\'\\n\'+\'" }, { "\r", " " },
+		{ "\\", "\'+\'\\\\\'+\'" }, { "\'", "\'+\'\\\'\'+\'" } };  
+
+
+/**
+ * 用特殊的字符连接字符串
+ * 
+ * @param strings
+ *            要连接的字符串数组
+ * @param spilit_sign
+ *            连接字符
+ * @return 连接字符串
+ */
+public static String stringConnect(String[] strings, String spilit_sign) {
+	String str = "";
+	for (int i = 0; i < strings.length; i++) {
+		str += strings[i] + spilit_sign;
+	}
+	return str;
+}
+
+/**
+ * 过滤字符串里的的特殊字符
+ * 
+ * @param str
+ *            要过滤的字符串
+ * @return 过滤后的字符串
+ */
+public static String stringFilter(String str) {
+	String[] str_arr = stringSpilit(str, "");
+	for (int i = 0; i < str_arr.length; i++) {
+		for (int j = 0; j < FilterChars.length; j++) {
+			if (FilterChars[j][0].equals(str_arr[i]))
+				str_arr[i] = FilterChars[j][1];
+		}
+	}
+	return (stringConnect(str_arr, "")).trim();
+}
+
+/**
+ * 过滤脚本中的特殊字符（包括回车符(\n)和换行符(\r)）
+ * 
+ * @param str
+ *            要进行过滤的字符串
+ * @return 过滤后的字符串 2004-12-21 闫
+ */
+public static String stringFilterScriptChar(String str) {
+	String[] str_arr = stringSpilit(str, "");
+	for (int i = 0; i < str_arr.length; i++) {
+		for (int j = 0; j < FilterScriptChars.length; j++) {
+			if (FilterScriptChars[j][0].equals(str_arr[i]))
+				str_arr[i] = FilterScriptChars[j][1];
+		}
+	}
+	return (stringConnect(str_arr, "")).trim();
+}
+
+/**
+ * 分割字符串
+ * 
+ * @param str
+ *            要分割的字符串
+ * @param spilit_sign
+ *            字符串的分割标志
+ * @return 分割后得到的字符串数组
+ */
+public static String[] stringSpilit(String str, String spilit_sign) {
+	String[] spilit_string = str.split(spilit_sign);
+	if (spilit_string[0].equals("")) {
+		String[] new_string = new String[spilit_string.length - 1];
+		for (int i = 1; i < spilit_string.length; i++)
+			new_string[i - 1] = spilit_string[i];
+		return new_string;
+	} else
+		return spilit_string;
+}
+
+/**
+ * 字符串字符集转换
+ * 
+ * @param str
+ *            要转换的字符串
+ * @return 转换过的字符串
+ */
+public static String stringTransCharset(String str) {
+	String new_str = null;
+	try {
+		new_str = new String(str.getBytes("iso-8859-1"), "GBK");
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	return new_str;
+}    
+/**
+ * 正则替换所有特殊字符
+ * @param str
+ * @return
+ */  
+public static String replaceSpecStr(String str){
+	if (null!=str && !"".equals(str.trim())) {
+//		String regEx="[\\s~·`!！@#￥$%^……&*（()）\\-——\\-_=+【\\[\\]】｛{}｝\\|、\\\\；;：:‘'“”\"，,《<。.》>、/？?]";
+		String regEx="[\\s~·`!！@#￥$%^……&*（()）\\-——\\-_=+【\\[\\]】｛{}｝\\|、\\\\；;：:‘'“”\"，,《<。》>、/？?]";//不包含.
+		Pattern p = Pattern.compile(regEx);
+		Matcher m = p.matcher(str);
+		return m.replaceAll("");
+	}
+	return null;
+}
+public static void main(String[] args) {
+   System.out.println(isDigital("0001231是"));
+}
 }

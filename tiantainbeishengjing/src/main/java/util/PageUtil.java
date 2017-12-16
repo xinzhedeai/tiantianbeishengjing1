@@ -1,8 +1,15 @@
 package util;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import pageModel.EasyUIGridObj;
@@ -10,12 +17,13 @@ import pageModel.EasyUIGridObj;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
+import util.StringUtil;
 import exception.SysException;
 import action.UserAction;
 
 public class PageUtil {
+	static Logger logger  = Logger.getLogger(PageUtil.class);
 	public static Map _transPagging(Map paramMap) throws SysException{
-		Logger logger  = Logger.getLogger(PageUtil.class);
 		Map newParaMap = new HashMap();
 		try {
 			int start = Integer.parseInt(((String[]) paramMap.get("start"))[0]);
@@ -34,7 +42,7 @@ public class PageUtil {
 		}
 		return newParaMap;
 	}
-	public EasyUIGridObj searchByPage(Map paramMap,String str) throws SysException {
+	public static EasyUIGridObj searchByPage(Object object, Map paramMap, String method) throws SysException {
 		int pageNum = 0;
 		int pageSize = 0;
 		EasyUIGridObj easyUIGridObj = new EasyUIGridObj();
@@ -44,8 +52,30 @@ public class PageUtil {
 		} catch (Exception e) {
 			throw new SysException("分页参数格式不正确.");
 		}
-		
+		String sort = (String) paramMap.get("sort");
+		String order = (String) paramMap.get("order");
+		if (!StringUtil.isEmpty(sort) && !StringUtil.isEmpty(order))
+			if (order.toUpperCase().equals("DESC") || order.toUpperCase().equals("ASC")) 
+					PageHelper.orderBy(StringUtil.stringFilter(sort) + " " + order);
+			else logger.warn("分页参数不合法，已自动忽略");
 		Page page = PageHelper.startPage(pageNum, pageSize);
+		
+		//java反射机制，动态调用方法
+		try {
+			Method targetMethod = object.getClass().getMethod(method, Map.class);//获取对象相应方法
+			List<Map> list = (List<Map>) targetMethod.invoke(object, paramMap);//调用相应方法
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		
 		/*customBlogMapper.searchMyRecBlogs(paramMap);*/
 		//这句该怎么封装？？
 		if(page.getTotal() > (pageNum - 1) * pageSize) {

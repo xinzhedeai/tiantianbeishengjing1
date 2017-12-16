@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="customMapper.CustomUserMapper">
+	<select id="selectUser" resultType="Map" parameterType="Map">
+		SELECT 
+			*
+		FROM
+			user
+	    WHERE 
+	    	user_name = #{user_name} and user_pwd = #{user_pwd};
+	</select>
+	
+	<select id="getAdminListByPage"  parameterType="Map" resultType="Map">
+		SELECT
+			a.user_id    ,
+			a.user_name  ,
+			b.common_code_m_text AS type,
+			a.gender,
+			DATE_FORMAT(a.create_date,'%Y-%m-%d %H:%i %s') create_date,
+			DATE_FORMAT(a.last_login_date,'%Y-%m-%d %H:%i %s') last_login_date,
+			CASE a.state 
+				WHEN '1' THEN '在线'
+				ELSE '离线'
+			END AS state
+				
+		FROM
+			user a
+		LEFT JOIN common_code b ON
+			b.common_code_m = a.type
+   		<where>
+		 	<if test="user_name != null and user_name != ''">
+			 	and user_name like '%${user_name}%'
+		 	</if>
+	 	</where>	
+	 </select>
+	 <!-- 获取新入群人员背经信息 -->
+ 	<select id="getUserListByPage" parameterType="Map" resultType="Map">
+ 		select 
+ 			a.scripture_user_id,
+ 			a.scripture_user_name,
+ 			DATE_FORMAT(a.create_date, '%Y-%m-%d') AS create_date,
+ 			b.common_code_m_text AS type,
+ 			c.recite_date,
+ 			COUNT(c.scripture_user_id) AS recite_count,
+ 			<!-- 获取最后背经时间 -->
+ 			(SELECT 
+				d.recite_date 
+			FROM
+				scripture_recite_records d
+			WHERE d.scripture_user_id = a.scripture_user_id
+			ORDER BY d.recite_date DESC LIMIT 0,1 ) as last_recite_date,
+			<!-- 查看当日是否已背诵经文 N 未背 Y 已背  -->
+			(SELECT 
+				CASE count(e.record_id) WHEN 1 THEN 'Y' 
+				ELSE 'N'
+				END
+			FROM
+				scripture_recite_records e
+			WHERE 
+				e.scripture_user_id = a.scripture_user_id
+			AND
+				e.recite_date = CURDATE()) AS recited_YN,
+			<!-- 查看新人自加入群到目前为止是否满一周了 N 未满一周 Y已满一周 -->
+			CASE 
+				DATE_ADD(DATE_FORMAT(a.create_date,'%Y-%m-%d'), INTERVAL 7 DAY) <![CDATA[<=]]> CURRENT_DATE
+			WHEN 0 THEN 'N'
+			ELSE 'Y'
+			END 
+			AS one_week
+ 		from
+ 			scriptureuser a
+ 		left join common_code b on
+ 			b.common_code_m = a.type
+ 		left join scripture_recite_records c on
+ 			c.recite_date <![CDATA[>=]]> DATE_FORMAT(a.create_date,'%Y-%m-%d')
+ 			and
+ 			c.recite_date <![CDATA[<=]]> DATE_ADD(DATE_FORMAT(a.create_date,'%Y-%m-%d'),INTERVAL 7 DAY)
+ 			and 
+ 			c.scripture_user_id = a.scripture_user_id
+ 		where 
+ 			b.common_code_m = '2001'
+ 			group by a.scripture_user_id
+	 </select>
+	 
+ 	<insert id="addReceit" parameterType="String">
+		insert into scripture_recite_records(
+				record_id ,
+				scripture_user_id , 
+				recite_date 
+		 )
+		values 
+		(
+			UUID() ,
+			#{scripture_user_id} ,
+			NOW()
+		)
+	</insert>
+	<insert id="addScriptureUser" parameterType="String">
+		insert into scriptureuser(
+			scripture_user_id   ,
+			scripture_user_name ,
+			create_date         ,
+			type
+		 )
+		values 
+		(
+			UUID() ,
+			#{scripture_user_id} ,
+			NOW(),
+			'2001' <!-- 新入群成员 -->
+		)
+	</insert>
+	 <!-- 删除新入群审查不通过的成员 -->
+    <delete id="delScriptureUser" parameterType="Map">
+        DELETE
+        FROM
+        scriptureuser
+        WHERE
+        scripture_user_id IN
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        ;
+    </delete>
+</mapper>

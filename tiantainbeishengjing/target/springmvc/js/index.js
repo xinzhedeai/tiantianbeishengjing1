@@ -1,20 +1,19 @@
 $(function() {
 	$('.header').load("header.html");
 	$('.footer').load("footer.html");
-	var page = 1, rows = 10, total = page * rows;
-
-	$(".loadmore").click(function() {
-		page += 1;
-		getAllBlogs(userId, page, rows)
-		numa = page * rows;
-	});
 	$('#confirmBtn').click(function() {
 		addScripture();
 	});
 	$('#searchBtn').click(function() {
 		getScripture();
 	});
-
+	/*var nowTime = new Date()
+	if(nowTime.getDay() != 7){
+		$('.alert-warning').css('visibility', 'hidden');
+	}else{
+		$('#type option:gt(1)').hide();
+		$('.alert-warning').css('visibility', 'visible');
+	}*/
 	$('#importBtn').click(function() {
 		$('#upload_scripture_modal').modal();
 		/*var uploadDiv = $('#upload_scripture_div');
@@ -64,18 +63,7 @@ $(function() {
 		   flash_swf_url : 'lib/plugin/plupload-2.1.2/Moxie.swf',
 		silverlight_xap_url : 'lib/plugin/plupload-2.1.2/MoxiDe.xap'
 	});
-	
-//	$('.form_date').datetimepicker({
-//		
-//        weekStart: 1,
-//        todayBtn:  1,
-//		autoclose: 1,
-//		todayHighlight: 1,
-//		startView: 2,
-//		minView: 2,
-//		forceParse: 0
-//    });
-	$('#datetimepicker').datetimepicker({
+	$('.createDate').datetimepicker({
 		language:'zh-CN',
 		autoclose: 1,
 		startView: 2,
@@ -83,34 +71,166 @@ $(function() {
 		todayHighlight: 1,
 		todayBtn:  1,
 	    format: 'yyyy-mm-dd'
-	    	
+	}).on('changeDate', function(ev){
+		/*formatDate(ev.timeStamp)
+		console.log(ev);
+	    layer.alert('时间改变了。。。。。。'+formatDate(ev.timeStamp));*/
+		getScripture();
+	});;
+	$("#copy").zclip({
+		path: '/lib/js/ZeroClipboard.swf',
+		copy: function(){
+			$('.glyphicon-minus').parent().click();//取消编辑事件触发
+			var str = $('#previewArea').html().replace(/<br><hr>/g,'\n');
+			str = str.replace(/<([a-zA-Z]+)\s*[^><]*>/g,"<$1>");//去掉属性
+			str = str.replace(new RegExp("<span([^>]{0,})>", "g"), "");//去掉<span>
+			str = str.replace(new RegExp("</span>", "g"), "");//去掉</span>
+			return str;
+		},
+		afterCopy: function(){
+//			alert('已成功复制到粘贴板上了~');
+			 var $copysuc = $("<div class='copy-tips'><div class='copy-tips-wrap'>☺ 复制成功</div></div>");
+             $("body").find(".copy-tips").remove().end().append($copysuc);
+             $(".copy-tips").fadeOut(3000);
+		}
+	});
+	//修改经文
+	$(document).on('dblclick', '#previewArea span', function(){
+		var editable_span_dom = '<textarea type="text" class="form-control">'+ $(this).html() +'</textarea>'+
+								'<button type="button" class="btn btn-primary" onclick="modScripture(this)" data-no="'+ $(this).data('no') +'" data-type="'+ $(this).data('type') +'">\
+								<span class="glyphicon glyphicon-ok"></span></button>\
+								<button type="button" data-no="'+ $(this).data('no') +'" class="btn btn-danger" onclick="cancelOperate(this)">\
+								<span class="glyphicon glyphicon-minus"></span></button>';
+		$(this).after(editable_span_dom).hide();
+	});
+	
+	//添加经文
+	$('#add_scripture_btn').click(function(){
+		$('#add_scripture_modal').modal();
+		$("#add_scripture_remind").hide();
+	});
+	//模态款彻底显示后逻辑处理
+	$('#add_scripture_modal').on('shown.bs.modal', function () {
+		getNextScriptureDate();
+	});
+	//模态框中经文类型修改后,实时显示下一个日期
+	$('#type').change(function(){
+		getNextScriptureDate();
+	});
+	//搜索条件改变时，自动搜索
+	$('#search_form_type').change(function(){
+		/**
+		 * 当搜索条件-经文类型发生改变时，获取当前最新经文所属的日期
+		 * 也就是通过getNextScriptureDate()返回的日期数减一
+		 * 日期减一天的逻辑已经在getNextScriptureDate方法中处理了。
+		 */
+		getNextScriptureDate();
 	});
 });
+
+
 
 function addScripture() {
 	$.post('/scriptureAction/addScripture.action', $(
 			'#add_scripture_modal form').serialize(), function(result) {
 		if (result.success) {
-			alert(result.msg);
+//			$('#reset_btn').click();
+			$('#sripture_content, #scripture_url').val('');
+			layer.alert(result.msg);
+			getNextScriptureDate();
 		} else {
-			alert(result.msg);
+			layer.alert(result.msg);
 		}
 	}, "JSON");
 }
+/**
+ * params[0]:经文编号
+ * params[1]:经文内容/url
+ * params[2]:修改的内容类型  如果为’url‘修改的则是连接。否则默认修改时圣经内容 
+ * 
+ */
+function modScripture(target){
+	var data_obj = $(target).data(), type = data_obj.type, reqParam = {};
+
+	reqParam.scripture_no = data_obj.no;
+	if(type == 'url'){
+		reqParam.url = $(target).prev().val();
+	}else{
+		reqParam.scripture_text = $(target).prev().val();
+	}
+	$.post('/scriptureAction/modScripture.action', reqParam, function(result) {
+		if (result.success) {
+			layer.alert(result.msg);
+			$('#searchBtn').trigger('click');
+		} else {
+			layer.alert(result.msg);
+		}
+	}, "JSON");
+}
+function cancelOperate(target){
+//	$spanTarget = $.parseJSON(decodeURIComponent(spanTarget));
+	$(target).prevUntil('span').remove().end().remove();//移除操作按钮
+	$('#previewArea span[data-no="'+ $(target).data('no') +'"]').show();//回复经文只读状态
+	
+}
 function getScripture() {
-	$.post('/scriptureAction/searchScripturesByNo.action', $('#seachForm')
+	$.post('/scriptureAction/searchScripturesByDate.action', $('#seachForm')
 			.serialize(), function(result) {
 		if (result.success) {
-			var result = result.result, scriptureStr = '';
+			var result = result.result, scriptureStr = '', url = '';
 			if (result && result.length > 0) {
 				for (var i = 0; i < result.length; i++) {
-					scriptureStr += result[i].scriptureText + '</br><hr/>';
+					if(i == 0){
+						scriptureStr += result[i].create_date + '</br><hr/>';
+						url = result[i].url ? '<span data-no="'+ result[i].scripture_no +'" data-type="url">' + result[i].url + '</span>' : '';
+					}
+					if(i == 1){
+						scriptureStr += '复习:</br><hr/>';
+					}
+					scriptureStr += '<span data-no="'+ result[i].scripture_no +'" data-type="scripture">' + 
+									result[i].scripture_text + '</span></br><hr/>';
+					
 				}
-
+				scriptureStr += url;
+				console.log(scriptureStr);
 				$('#previewArea').html(scriptureStr);
 			}
 		} else {
-			alert(result.msg);
+//			layer.alert(result.msg);
+			$('#previewArea').html('<div class="alert alert-danger"> <strong>很抱歉~!！</strong>暂未找到符合查找条件的经文内容(┳＿┳)...</div>');
+		}
+	}, "JSON");
+}
+function getNextScriptureDate(){
+	var reqParam = {};
+	reqParam.type = $('#add_scripture_modal').hasClass('in') ? $('#type').val() : $('#search_form_type').val();//搜索条件类型和模态框中的类型两种情况
+	$.post('/scriptureAction/getNextScriptureDate.action', reqParam, function(res) {
+		if (res.success) {
+//			layer.alert(res.msg);
+			if($('#add_scripture_modal').hasClass('in')){//当模态框显示的时候
+				$('#scrpture_create_date').text(res.result.next_create_date);
+				//周日经文添加提示处理
+				var next_create_date = new Date(res.result.next_create_date);
+				var scripture_type = $('#type').val();
+				if(scripture_type == 'C' || scripture_type == 'D' || scripture_type == 'E'){
+					next_create_date.getDay() == 0 ? $("#add_scripture_remind").show('slow') : $("#add_scripture_remind").hide('slow');
+				}else{
+					$("#add_scripture_remind").hide('slow');
+				}
+				//非新约背节  视频链接隐藏
+				scripture_type != 'A' ? $('.video_url').hide('slow') : $('.video_url').show('slow');
+				
+			}else{
+//				var next_date = new Date(res.result.next_create_date),
+//				current_date = +next_date - 1000*60*60*24; //原时间减去一天
+//				$('.createDate').val(formatDate(new Date(current_date)));
+				$('.createDate').val(res.result.last_create_date);
+				//由于经文类型改变后获取的时候，不能再查询经文接口调用前完成赋值，所以需要将查询经文的接口写在这里。
+				getScripture();
+			}
+			
+		} else {
+			layer.alert(res.msg);
 		}
 	}, "JSON");
 }

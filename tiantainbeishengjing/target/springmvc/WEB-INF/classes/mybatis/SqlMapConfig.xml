@@ -11,7 +11,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 		<!-- 包扫描方式定义别名
 		扫描一个包下边所有的pojo类，别名自动定义为：类名（首字母小写或大写都可以）
 		 -->
-		<package name="normalPo, po"/>
+		<package name="normalPo"/>
 		
 	 </typeAliases>
 	<!-- 和spring整合后 environments配置将废除-->

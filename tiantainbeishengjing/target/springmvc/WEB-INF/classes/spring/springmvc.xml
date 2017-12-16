@@ -61,10 +61,10 @@
         <property name="exceptionMappings">  
             <props>  
                 <!-- 遇到MaxUploadSizeExceededException异常时，自动跳转到/WEB-INF/error_fileupload.jsp页面 -->  
-                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">/v1/api/error/error.json?errCode=-22</prop>  
+                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">error/error</prop>  
                 <!-- 处理其它异常(包括Controller抛出的) -->  
-                <prop key="java.lang.Throwable">/v1/api/error/error.json</prop>  
-                <prop key="org.springframework.web.HttpMediaTypeNotAcceptableException">/v1/api/error/error.json</prop> 
+                <prop key="java.lang.Throwable">error/error</prop>  
+                <prop key="org.springframework.web.HttpMediaTypeNotAcceptableException">error/error</prop> 
                 
             </props>  
         </property>  
