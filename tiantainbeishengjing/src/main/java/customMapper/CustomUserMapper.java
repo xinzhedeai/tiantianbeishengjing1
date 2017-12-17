@@ -20,5 +20,5 @@ public interface CustomUserMapper {
 
 	int addScriptureUser(String scripture_user_name);
 
-	int delScriptureUser(String scripture_user_ids);
+	int delScriptureUser(List scripture_user_ids);
 }

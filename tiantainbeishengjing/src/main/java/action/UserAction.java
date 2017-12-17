@@ -11,6 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSON;
+
 import customMapper.CustomUserMapper;
 import exception.SysException;
 import pageModel.EasyUIGridObj;
@@ -125,9 +127,11 @@ public class UserAction extends BaseAction{
 	//新人刪除
 	@ResponseBody
 	@RequestMapping("/delScriptureUser")
-	public JsonResult delScriptureUser(String scripture_user_ids) throws Exception{
+	public JsonResult delScriptureUser(HttpServletRequest req) throws Exception{
 		JsonResult j = new JsonResult();
-		List userList = SerialUtil.JsonToList(scripture_user_ids);
+		List scripture_user_ids = SerialUtil.JsonToList(req.getParameter("scripture_user_ids"));
+		
+		
 		if(customUserMapper.delScriptureUser(scripture_user_ids) > 0){
 			j.setSuccess(true);
 			j.setMsg(MSG_CONST.DELETESUCCESS);

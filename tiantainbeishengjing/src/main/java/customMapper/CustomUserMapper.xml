@@ -79,6 +79,9 @@
  			c.scripture_user_id = a.scripture_user_id
  		where 
  			b.common_code_m = '2001'
+ 			<if test="scripture_user_name != null and scripture_user_name != ''">
+ 				and scripture_user_name like CONCAT('%', #{scripture_user_name}, '%')
+ 			</if>
  			group by a.scripture_user_id
 	 </select>
 	 

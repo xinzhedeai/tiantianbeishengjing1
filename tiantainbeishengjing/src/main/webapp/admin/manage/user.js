@@ -119,6 +119,7 @@ function receited(target){
 function addScriptureUser(){
 	$.post('/userAction/addScriptureUser.action', {'scripture_user_name':$('#scripture_user_name').val()}, function(result) {
 		if (result.success) {
+			$('#addScriptureUserModal').modal('hide');
 			layer.alert('添加新人成功');
 			$user.selector.userDatagrid.datagrid('reload');
 		} else {
