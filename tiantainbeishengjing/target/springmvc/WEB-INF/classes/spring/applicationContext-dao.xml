@@ -22,6 +22,10 @@
 		<!-- 通用mapper配置 -->
 		<property name="plugins">
 	      <array>
+	      	<!-- sql语句格式化插件 -->
+	      	<bean class="util.PerformanceInterceptor">
+	      		<property name="formatSql" value="true"/>
+	      	</bean>
 	        <bean class="com.github.pagehelper.PageHelper">
 	          <property name="properties">
 	            <value>

@@ -118,5 +118,28 @@
 		</where>
 		ORDER BY scriptureNo DESC LIMIT 0, 1
 	</select>
+	
+	<select id="" parameterType="Map" resultType="Map">
+			SELECT
+				a.lection,
+				b.volume_name
+			FROM 
+				scriptures a
+			LEFT JOIN 
+				volumes b
+			ON b.volume_id = a.volume_id
+		<where>
+			<if test="volume_id != null and volume_id != ''">
+				a.volume_id = 1 = #{volumn_id}
+			</if>
+			<if test="chapter_no != null and chapter_no != ''">
+				and a.chapter_no = 1 = #{chapter_no}
+			</if>
+			<if test="verse_no != null and verse_no != ''">
+				and a.verse_no = 1 = #{verse_no}
+			</if>
+		</where>
+		<!-- ORDER BY scriptureNo DESC LIMIT 0, 1 -->
+	</select>
 
 </mapper>

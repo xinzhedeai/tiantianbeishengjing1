@@ -22,5 +22,9 @@ public interface CustomScriptureMapper extends Mapper{
 	Map getNextScriptureDate(Map paramMap);
 
 	List<Scripture> searchScriptures(Map paramMap);
+
+	List getScriptureByBible(Map paramMap);
+	
+	List getVolumeChapterVerse(Map paramMap);
 	
 }

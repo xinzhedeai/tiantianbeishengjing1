@@ -10,7 +10,7 @@ $(function(){
 });
 function loginFun() {
 	var formvalue = $('.loginForm').serialize();
-	$.post('userAction/loginSubmit.action', formvalue, function(result) {
+	$.post('userAction/login.action', formvalue, function(result) {
 		if (result.success) {
 			location.href = 'html/index.html';
 		} else {

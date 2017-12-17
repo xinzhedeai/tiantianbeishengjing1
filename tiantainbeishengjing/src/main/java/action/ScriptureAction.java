@@ -68,8 +68,6 @@ public class ScriptureAction {
 
 	@Autowired
 	private ScriptureService scriptureServiceImpl;
-//	@Autowired
-//	private ScriptureMapper scriptureMapper;
 	@Autowired
 	private CustomScriptureMapper customScriptureMapper;
 	
@@ -185,24 +183,14 @@ public class ScriptureAction {
 		}
 		return j;
 	}
-/*	@ResponseBody
-	@RequestMapping("/searchScripturesByNo")
-	public JsonResult searchScripturesByNo(HttpServletRequest req) throws SysException {
+	
+	@ResponseBody
+	@RequestMapping("/getVolumeChapterVerse")//获取圣经某卷某章某节经文
+	public JsonResult getVolumeChapterVerse(HttpServletRequest req) throws SysException {
 		JsonResult j = new JsonResult();
 		Map paramMap = new HashMap();
 		paramMap = SpringUtils.getParameterMap(req);
-		String scriptureNo = (String) paramMap.get("scriptureNo");
-		if(!scriptureNo.isEmpty()){
-			String[] scriptureNoArr = scriptureNo.split("&");
-			paramMap.put("scriptureNoList", Arrays.asList(scriptureNoArr));
-		}
-		ScriptureExample spExample = new ScriptureExample();
-		ScriptureExample.Criteria criteria = spExample.createCriteria();
-		criteria.andScriptureNoIn(Arrays.asList(scriptureNoArr))
-		.andCreateDateEqualTo(sp.getCreateDate());
-		List<Scripture> spList = scriptureMapper.selectByExample(spExample);
-		
-		List<Scripture> spList = scriptureServiceImpl.searchScripturesByNo(paramMap);
+		List spList = customScriptureMapper.getVolumeChapterVerse(paramMap);
 		if (spList != null && spList.size() > 0) {
 			j.setSuccess(true);
 			j.setMsg(MSG_CONST.READSUCCESS);
@@ -212,7 +200,24 @@ public class ScriptureAction {
 			j.setMsg(MSG_CONST.READFAIL);
 		}
 		return j;
-	}*/
+	}
+	@ResponseBody
+	@RequestMapping("/getScriptureByBible")//获取圣经某卷某章某节经文
+	public JsonResult getScriptureByBile(HttpServletRequest req) throws SysException {
+		JsonResult j = new JsonResult();
+		Map paramMap = new HashMap();
+		paramMap = SpringUtils.getParameterMap(req);
+		List spList = customScriptureMapper.getScriptureByBible(paramMap);
+		if (spList != null && spList.size() > 0) {
+			j.setSuccess(true);
+			j.setMsg(MSG_CONST.READSUCCESS);
+			j.setResult(spList);
+		} else {
+			j.setSuccess(false);
+			j.setMsg(MSG_CONST.READFAIL);
+		}
+		return j;
+	}
 	@ResponseBody
 	@RequestMapping("/searchScripturesByDate")
 	public JsonResult searchScripturesByDate(HttpServletRequest req) throws SysException {
