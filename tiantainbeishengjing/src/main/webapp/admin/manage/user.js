@@ -68,6 +68,11 @@ $(function() {
 		formatter: function(value, row, index){
 			return value == 'Y' ? '已满一周' : '未满一周';
 		}
+	},{
+		field : 'last_recite_date',
+		title : '最后一次背经时间',
+		width : 100,
+		sortable : true,
 	}],
 	userOptions = {
 		url : contextPath + '/userAction/getUserListByPage.action',
