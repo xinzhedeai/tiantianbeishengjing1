@@ -214,7 +214,7 @@ function getScripture() {
 			$('#previewArea').html('<div class="alert alert-danger"> <strong>很抱歉~!！</strong>暂未找到符合查找条件的经文内容(┳＿┳)...</div>');
 			$('.date_ajust_div').hide();
 		}
-	}, "JSON");
+	}, "JSON"); 
 }
 function getNextScriptureDate(){
 	var reqParam = {};
