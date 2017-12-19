@@ -28,6 +28,7 @@ body{background-color: rgb(204, 232, 207);}
 
 #previewArea{min-height: 300px;}
 textarea.form-control {width: 89%; display:inline-block; vertical-align:middle;}
+.date_ajust_div {overflow:hidden; position:relative; top:115px; right:76%;}
 </style>
 </head>
 <body>
@@ -82,7 +83,7 @@ textarea.form-control {width: 89%; display:inline-block; vertical-align:middle;}
 								<span class="glyphicon glyphicon-hand-up"></span>
 								一键复制
 							</button>
-							<a href="review.html"
+							<a href="review.html" target="_blank"
 								class="btn btn-link btn-sm index-send-btn " id="copy">
 								<span class="glyphicon glyphicon-chevron-right"></span>
 								周末复习
@@ -110,6 +111,16 @@ textarea.form-control {width: 89%; display:inline-block; vertical-align:middle;}
 						</div>
 					</form>
 				</div> -->
+				<div class="date_ajust_div">
+					<button type="button"
+						class="btn btn-primary btn-sm index-send-btn date_next" onclick="date_ajust(this);">
+						<span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+					</button>
+					<button type="button"
+						class="btn btn-primary btn-sm index-send-btn date_prev" onclick="date_ajust(this);">
+						<span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+					</button>
+				</div>
 				<div id="previewArea" class="clearfix">
 					<div class="alert alert-danger"> <strong>很抱歉~!！</strong>暂未找到符合查找条件的经文内容(┳＿┳)...</div>
 				</div>

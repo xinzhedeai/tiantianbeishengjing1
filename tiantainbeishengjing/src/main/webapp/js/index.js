@@ -128,7 +128,19 @@ $(function() {
 	});
 });
 
-
+function date_ajust(target){
+	var create_date = $('.createDate').val();
+	if(!create_date) return ;
+	
+	var create_date_obj = new Date(create_date);
+	if($(target).hasClass('date_prev')){
+		$('.createDate').val(formatDate(new Date(create_date_obj.setDate(create_date_obj.getDate() - 1))));//减少一天
+		getScripture();
+	}else{
+		$('.createDate').val(formatDate(new Date(create_date_obj.setDate(create_date_obj.getDate() + 1))));//增加一天
+		getScripture();
+	}
+}
 
 function addScripture() {
 	$.post('/scriptureAction/addScripture.action', $(
@@ -181,6 +193,7 @@ function getScripture() {
 			if (result && result.length > 0) {
 				for (var i = 0; i < result.length; i++) {
 					if(i == 0){
+						scriptureStr += $('#search_form_type').find('option:selected').text() + '</br><hr/>';
 						scriptureStr += result[i].create_date + '</br><hr/>';
 						url = result[i].url ? '<span data-no="'+ result[i].scripture_no +'" data-type="url">' + result[i].url + '</span>' : '';
 					}
@@ -192,7 +205,6 @@ function getScripture() {
 					
 				}
 				scriptureStr += url;
-				console.log(scriptureStr);
 				$('#previewArea').html(scriptureStr);
 			}
 		} else {
