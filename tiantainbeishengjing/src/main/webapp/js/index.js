@@ -1,4 +1,5 @@
 $(function() {
+	$('.date_ajust_div').hide();
 	$('.header').load("header.html");
 	$('.footer').load("footer.html");
 	$('#confirmBtn').click(function() {
@@ -206,10 +207,12 @@ function getScripture() {
 				}
 				scriptureStr += url;
 				$('#previewArea').html(scriptureStr);
+				$('.date_ajust_div').show('slow');
 			}
 		} else {
 //			layer.alert(result.msg);
 			$('#previewArea').html('<div class="alert alert-danger"> <strong>很抱歉~!！</strong>暂未找到符合查找条件的经文内容(┳＿┳)...</div>');
+			$('.date_ajust_div').hide();
 		}
 	}, "JSON");
 }
