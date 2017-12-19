@@ -130,6 +130,28 @@ public class ScriptureAction {
 		return j;
 	}
 	@ResponseBody
+	@RequestMapping("/getPrevScripture")
+	public JsonResult getPrevScripture(HttpServletRequest req) throws Exception {
+		JsonResult j = new JsonResult();
+		Map paramMap = new HashMap();
+		paramMap = SpringUtils.getParameterMap(req);
+		Map resultMap = customScriptureMapper.getPrevScripture(paramMap);
+		try {
+			if (resultMap != null && !"".equals(resultMap)) {
+		        j.setResult(resultMap);
+				j.setSuccess(true);
+				j.setMsg(MSG_CONST.READSUCCESS);
+			} else {
+				j.setSuccess(false);
+				j.setMsg(MSG_CONST.READFAIL);
+			}
+		} catch (Exception e) {
+			logger.error(e);
+			throw new SysException("发生错误");
+		}
+		return j;
+	}
+	@ResponseBody
 	@RequestMapping("/addScripture")
 	public JsonResult addScripture(HttpSession session, HttpServletRequest req) throws Exception {
 		JsonResult j = new JsonResult();
@@ -253,7 +275,6 @@ public class ScriptureAction {
 		}
 		return j;
 	}
-	
 	
 	@ResponseBody
 	@RequestMapping("/impScriptureBatch")

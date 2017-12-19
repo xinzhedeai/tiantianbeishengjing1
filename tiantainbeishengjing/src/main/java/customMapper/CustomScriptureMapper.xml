@@ -81,6 +81,15 @@
 				type = #{scriptureNoFlag}
 			ORDER BY create_date DESC LIMIT 0, 1
 	</select>
+	<select id="getPrevScripture" parameterType="Map" resultType="Map">
+			SELECT 
+				*
+			FROM
+				scripture
+			WHERE 
+				type = #{type}
+			ORDER BY create_date DESC LIMIT 0, 1
+	</select>
 	<select id="selectLastScriptureNo" parameterType="Map" resultType="Integer">
 		SELECT
 			substring(scripture_no, 2) + 0 AS scripturenNo

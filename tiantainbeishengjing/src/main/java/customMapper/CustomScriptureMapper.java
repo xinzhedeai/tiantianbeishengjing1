@@ -26,5 +26,7 @@ public interface CustomScriptureMapper extends Mapper{
 	List getScriptureByBible(Map paramMap);
 	
 	List getVolumeChapterVerse(Map paramMap);
+
+	Map getPrevScripture(Map paramMap);
 	
 }

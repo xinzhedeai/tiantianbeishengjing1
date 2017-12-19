@@ -221,6 +221,7 @@ function getNextScriptureDate(){
 //			layer.alert(res.msg);
 			if($('#add_scripture_modal').hasClass('in')){//当模态框显示的时候
 				$('#scrpture_create_date').text(res.result.next_create_date);
+				getPrevScripture();//获取数据库已有的最新的一节经文
 				//周日经文添加提示处理
 				var next_create_date = new Date(res.result.next_create_date);
 				var scripture_type = $('#type').val();
@@ -241,6 +242,18 @@ function getNextScriptureDate(){
 				getScripture();
 			}
 			
+		} else {
+			layer.alert(res.msg);
+		}
+	}, "JSON");
+}
+
+function getPrevScripture(){
+	var reqParam = {};
+	reqParam.type = $('#type').val();
+	$.post('/scriptureAction/getPrevScripture.action', reqParam, function(res) {
+		if (res.success) {
+			$('#prev_scripture_preview').html('【日期】:'+ res.result.create_date + '<br>' + res.result.scripture_text);
 		} else {
 			layer.alert(res.msg);
 		}
