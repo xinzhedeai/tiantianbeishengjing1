@@ -26,7 +26,7 @@ $(function() {
 	$('#upload_scripture_div').plupload({
 		// General settings
 		runtimes : 'html5,flash,silverlight,html4',
-		url : '/scriptureAction/impScriptureBatch.action',
+		url : contextPath + '/scriptureAction/impScriptureBatch.action',
 
 		// User can upload no more then 20 files in one go (sets multiple_queues to false)
 		max_file_count: 20,
@@ -61,8 +61,8 @@ $(function() {
 			thumbs: true, // Show thumbs
 			active: 'thumbs'
 		},
-		   flash_swf_url : 'lib/plugin/plupload-2.1.2/Moxie.swf',
-		silverlight_xap_url : 'lib/plugin/plupload-2.1.2/MoxiDe.xap'
+		   flash_swf_url : contextPath + '/lib/plugin/plupload-2.1.2/Moxie.swf',
+		silverlight_xap_url : contextPath + '/lib/plugin/plupload-2.1.2/MoxiDe.xap'
 	});
 	$('.createDate').datetimepicker({
 		language:'zh-CN',
@@ -79,7 +79,7 @@ $(function() {
 		getScripture();
 	});;
 	$("#copy").zclip({
-		path: '/lib/js/ZeroClipboard.swf',
+		path: contextPath + '/lib/js/ZeroClipboard.swf',
 		copy: function(){
 			$('.glyphicon-minus').parent().click();//取消编辑事件触发
 			var str = $('#previewArea').html().replace(/<br><hr>/g,'\n');
@@ -144,7 +144,7 @@ function date_ajust(target){
 }
 
 function addScripture() {
-	$.post('/scriptureAction/addScripture.action', $(
+	$.post(contextPath + '/scriptureAction/addScripture.action', $(
 			'#add_scripture_modal form').serialize(), function(result) {
 		if (result.success) {
 //			$('#reset_btn').click();
@@ -171,7 +171,7 @@ function modScripture(target){
 	}else{
 		reqParam.scripture_text = $(target).prev().val();
 	}
-	$.post('/scriptureAction/modScripture.action', reqParam, function(result) {
+	$.post(contextPath + '/scriptureAction/modScripture.action', reqParam, function(result) {
 		if (result.success) {
 			layer.alert(result.msg);
 			$('#searchBtn').trigger('click');
@@ -187,7 +187,7 @@ function cancelOperate(target){
 	
 }
 function getScripture() {
-	$.post('/scriptureAction/searchScripturesByDate.action', $('#seachForm')
+	$.post(contextPath + '/scriptureAction/searchScripturesByDate.action', $('#seachForm')
 			.serialize(), function(result) {
 		if (result.success) {
 			var result = result.result, scriptureStr = '', url = '';
@@ -219,7 +219,7 @@ function getScripture() {
 function getNextScriptureDate(){
 	var reqParam = {};
 	reqParam.type = $('#add_scripture_modal').hasClass('in') ? $('#type').val() : $('#search_form_type').val();//搜索条件类型和模态框中的类型两种情况
-	$.post('/scriptureAction/getNextScriptureDate.action', reqParam, function(res) {
+	$.post(contextPath + '/scriptureAction/getNextScriptureDate.action', reqParam, function(res) {
 		if (res.success) {
 //			layer.alert(res.msg);
 			if($('#add_scripture_modal').hasClass('in')){//当模态框显示的时候
@@ -254,7 +254,7 @@ function getNextScriptureDate(){
 function getPrevScripture(){
 	var reqParam = {};
 	reqParam.type = $('#type').val();
-	$.post('/scriptureAction/getPrevScripture.action', reqParam, function(res) {
+	$.post(contextPath + '/scriptureAction/getPrevScripture.action', reqParam, function(res) {
 		if (res.success) {
 			$('#prev_scripture_preview').html('【日期】:'+ res.result.create_date + '<br>' + res.result.scripture_text);
 		} else {

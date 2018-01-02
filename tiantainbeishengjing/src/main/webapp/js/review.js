@@ -12,7 +12,7 @@ $(function() {
 		getScripture();
 	});
 	$("#copy").zclip({
-		path: '/lib/js/ZeroClipboard.swf',
+		path: contextPath + '/lib/js/ZeroClipboard.swf',
 		copy: function(){
 			$('.glyphicon-minus').parent().click();//取消编辑事件触发
 			var str = $('#previewArea').html().replace(/<br><hr>/g,'\n');
@@ -94,7 +94,7 @@ $(function() {
 
 
 function addScripture() {
-	$.post('/scriptureAction/addScripture.action', $(
+	$.post(contextPath + '/scriptureAction/addScripture.action', $(
 			'#add_scripture_modal form').serialize(), function(result) {
 		if (result.success) {
 //			$('#reset_btn').click();
@@ -107,7 +107,7 @@ function addScripture() {
 	}, "JSON");
 }
 function getScripture() {
-	$.post('/scriptureAction/getScriptureByBible.action', $('#seachForm')
+	$.post(contextPath + '/scriptureAction/getScriptureByBible.action', $('#seachForm')
 			.serialize(), function(result) {
 		if (result.success) {
 			var result = result.result, scriptureStr = '', url = '';

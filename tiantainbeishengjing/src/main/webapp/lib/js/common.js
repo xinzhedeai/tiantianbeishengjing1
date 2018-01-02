@@ -1,5 +1,5 @@
 'use strict';
-var contextPath = '';
+var contextPath = '/tiantianbeishengjing';
 //Timstamp 函数， durian请求体用
 function makeStamp(d) { // Date d
 	var y = d.getFullYear(), M = d.getMonth() + 1, D = d.getDate(), h = d

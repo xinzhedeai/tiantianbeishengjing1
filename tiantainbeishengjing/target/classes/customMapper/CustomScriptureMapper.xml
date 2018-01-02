@@ -62,7 +62,7 @@
 		SELECT  
 			substring(scripture_no, 2) AS scripture_no<!-- 从第二个字符开始裁剪包含第二个 --> 
 		FROM
-		SCRIPTURE
+		scripture
 		<where>
 			<if test="type != null and type != ''">
 				type = #{type}
@@ -81,10 +81,19 @@
 				type = #{scriptureNoFlag}
 			ORDER BY create_date DESC LIMIT 0, 1
 	</select>
+	<select id="getPrevScripture" parameterType="Map" resultType="Map">
+			SELECT 
+				*
+			FROM
+				scripture
+			WHERE 
+				type = #{type}
+			ORDER BY create_date DESC LIMIT 0, 1
+	</select>
 	<select id="selectLastScriptureNo" parameterType="Map" resultType="Integer">
 		SELECT
 			substring(scripture_no, 2) + 0 AS scripturenNo
-		FROM SCRIPTURE
+		FROM scripture
 		WHERE
 			type=#{scriptureNoFlag}
 		ORDER BY scripturenNo DESC LIMIT 0, 1
@@ -110,7 +119,7 @@
 			SUBSTRING(scripture_no, 2) + 0 AS scriptureNo,
 			create_date AS last_create_date
 		FROM
-			SCRIPTURE
+			scripture
 		<where>
 			<if test="type != null and type != ''">
 				type = #{type}

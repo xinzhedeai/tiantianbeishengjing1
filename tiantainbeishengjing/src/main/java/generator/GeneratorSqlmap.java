@@ -18,8 +18,8 @@ public class GeneratorSqlmap {
 
 		List<String> warnings = new ArrayList<String>();
 		boolean overwrite = true;
-//		File configFile = new File("generatorConfig.xml"); 
 		File configFile = new File("generatorConfig.xml"); 
+//		File configFile = new File("generator.xml"); 
 		ConfigurationParser cp = new ConfigurationParser(warnings);
 		Configuration config = cp.parseConfiguration(configFile);
 		DefaultShellCallback callback = new DefaultShellCallback(overwrite);
