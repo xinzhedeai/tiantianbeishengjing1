@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import normalPo.Scripture;
+//import normalPo.Scripture;
 import pageModel.JsonResult;
 import util.RequestUtil;
 import util.SpringUtils;
