@@ -1,4 +1,5 @@
 $(function() {
+	$('.date_ajust_div').hide();
 	$('.header').load("header.html");
 	$('.footer').load("footer.html");
 	$('#confirmBtn').click(function() {
@@ -25,7 +26,7 @@ $(function() {
 	$('#upload_scripture_div').plupload({
 		// General settings
 		runtimes : 'html5,flash,silverlight,html4',
-		url : '/scriptureAction/impScriptureBatch.action',
+		url : contextPath + '/scriptureAction/impScriptureBatch.action',
 
 		// User can upload no more then 20 files in one go (sets multiple_queues to false)
 		max_file_count: 20,
@@ -60,8 +61,8 @@ $(function() {
 			thumbs: true, // Show thumbs
 			active: 'thumbs'
 		},
-		   flash_swf_url : 'lib/plugin/plupload-2.1.2/Moxie.swf',
-		silverlight_xap_url : 'lib/plugin/plupload-2.1.2/MoxiDe.xap'
+		   flash_swf_url : contextPath + '/lib/plugin/plupload-2.1.2/Moxie.swf',
+		silverlight_xap_url : contextPath + '/lib/plugin/plupload-2.1.2/MoxiDe.xap'
 	});
 	$('.createDate').datetimepicker({
 		language:'zh-CN',
@@ -78,7 +79,7 @@ $(function() {
 		getScripture();
 	});;
 	$("#copy").zclip({
-		path: '/lib/js/ZeroClipboard.swf',
+		path: contextPath + '/lib/js/ZeroClipboard.swf',
 		copy: function(){
 			$('.glyphicon-minus').parent().click();//取消编辑事件触发
 			var str = $('#previewArea').html().replace(/<br><hr>/g,'\n');
@@ -128,10 +129,22 @@ $(function() {
 	});
 });
 
-
+function date_ajust(target){
+	var create_date = $('.createDate').val();
+	if(!create_date) return ;
+	
+	var create_date_obj = new Date(create_date);
+	if($(target).hasClass('date_prev')){
+		$('.createDate').val(formatDate(new Date(create_date_obj.setDate(create_date_obj.getDate() - 1))));//减少一天
+		getScripture();
+	}else{
+		$('.createDate').val(formatDate(new Date(create_date_obj.setDate(create_date_obj.getDate() + 1))));//增加一天
+		getScripture();
+	}
+}
 
 function addScripture() {
-	$.post('/scriptureAction/addScripture.action', $(
+	$.post(contextPath + '/scriptureAction/addScripture.action', $(
 			'#add_scripture_modal form').serialize(), function(result) {
 		if (result.success) {
 //			$('#reset_btn').click();
@@ -158,7 +171,7 @@ function modScripture(target){
 	}else{
 		reqParam.scripture_text = $(target).prev().val();
 	}
-	$.post('/scriptureAction/modScripture.action', reqParam, function(result) {
+	$.post(contextPath + '/scriptureAction/modScripture.action', reqParam, function(result) {
 		if (result.success) {
 			layer.alert(result.msg);
 			$('#searchBtn').trigger('click');
@@ -174,13 +187,14 @@ function cancelOperate(target){
 	
 }
 function getScripture() {
-	$.post('/scriptureAction/searchScripturesByDate.action', $('#seachForm')
+	$.post(contextPath + '/scriptureAction/searchScripturesByDate.action', $('#seachForm')
 			.serialize(), function(result) {
 		if (result.success) {
 			var result = result.result, scriptureStr = '', url = '';
 			if (result && result.length > 0) {
 				for (var i = 0; i < result.length; i++) {
 					if(i == 0){
+						scriptureStr += $('#search_form_type').find('option:selected').text() + '</br><hr/>';
 						scriptureStr += result[i].create_date + '</br><hr/>';
 						url = result[i].url ? '<span data-no="'+ result[i].scripture_no +'" data-type="url">' + result[i].url + '</span>' : '';
 					}
@@ -192,23 +206,25 @@ function getScripture() {
 					
 				}
 				scriptureStr += url;
-				console.log(scriptureStr);
 				$('#previewArea').html(scriptureStr);
+				$('.date_ajust_div').show('slow');
 			}
 		} else {
 //			layer.alert(result.msg);
 			$('#previewArea').html('<div class="alert alert-danger"> <strong>很抱歉~!！</strong>暂未找到符合查找条件的经文内容(┳＿┳)...</div>');
+			$('.date_ajust_div').hide();
 		}
-	}, "JSON");
+	}, "JSON"); 
 }
 function getNextScriptureDate(){
 	var reqParam = {};
 	reqParam.type = $('#add_scripture_modal').hasClass('in') ? $('#type').val() : $('#search_form_type').val();//搜索条件类型和模态框中的类型两种情况
-	$.post('/scriptureAction/getNextScriptureDate.action', reqParam, function(res) {
+	$.post(contextPath + '/scriptureAction/getNextScriptureDate.action', reqParam, function(res) {
 		if (res.success) {
 //			layer.alert(res.msg);
 			if($('#add_scripture_modal').hasClass('in')){//当模态框显示的时候
 				$('#scrpture_create_date').text(res.result.next_create_date);
+				getPrevScripture();//获取数据库已有的最新的一节经文
 				//周日经文添加提示处理
 				var next_create_date = new Date(res.result.next_create_date);
 				var scripture_type = $('#type').val();
@@ -229,6 +245,18 @@ function getNextScriptureDate(){
 				getScripture();
 			}
 			
+		} else {
+			layer.alert(res.msg);
+		}
+	}, "JSON");
+}
+
+function getPrevScripture(){
+	var reqParam = {};
+	reqParam.type = $('#type').val();
+	$.post(contextPath + '/scriptureAction/getPrevScripture.action', reqParam, function(res) {
+		if (res.success) {
+			$('#prev_scripture_preview').html('【日期】:'+ res.result.create_date + '<br>' + res.result.scripture_text);
 		} else {
 			layer.alert(res.msg);
 		}
