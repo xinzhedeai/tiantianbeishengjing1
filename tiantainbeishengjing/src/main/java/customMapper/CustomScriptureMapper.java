@@ -15,7 +15,7 @@ public interface CustomScriptureMapper extends Mapper{
 
 	int insertScriptureByManual(Map paramMap);
 
-	int selectLastScriptureNo(Map paramMap);
+	Integer selectLastScriptureNo(Map paramMap);
 
 	int modScripture(Map paramMap);
 

@@ -161,11 +161,22 @@ public class ScriptureAction {
 //		String create_date = paramMap.get("create_date").toString();
 		String type = paramMap.get("scriptureNoFlag").toString();
 		
-		int last_scripture_no = customScriptureMapper.selectLastScriptureNo(paramMap);//获取某个类型经文下最后的日期
+		Integer last_scripture_no = customScriptureMapper.selectLastScriptureNo(paramMap);//获取某个类型经文下最后的日期
+		if("".equals(last_scripture_no) || last_scripture_no == null){
+			System.out.println("为null的值***********");
+			last_scripture_no = 0;
+		}
 		String last_date = customScriptureMapper.selectLastDate(paramMap);//获取某个类型经文下最后的日期 
+		String last_date_flag = last_date;//保存第一次获取的某种类型下最后一条经文的日期，根据这个判断是否需要增加1天
+		System.out.println("数据库查询的最后一条经文的时间****"+last_date);
 	    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+	    if(StringUtil.isEmpty(last_date)){//如果是第一个经文，那么添加日期为今天
+			   Date today = new Date();
+			   last_date = format.format(today);
+//			   System.out.println("是第一条经文****"+last_date);
+		}
         Date currdate = format.parse(last_date);
-        System.out.println("现在的日期是：" + currdate);
+//        System.out.println("现在的日期是：" + currdate);
         Calendar ca = Calendar.getInstance();
          ca.setTime(currdate);
 //       如果将要添加经文类型是背章、诗篇、箴言,那么时间是周天的话，需要将日期加2.
@@ -174,8 +185,9 @@ public class ScriptureAction {
          }else{
         	 ca.add(Calendar.DATE, 7);// num为增加的天数，可以改变的
          }*/
-         
-         ca.add(Calendar.DATE, 1);// num为增加的天数，可以改变的
+         if(!StringUtil.isEmpty(last_date_flag)){//如果添加的不是第一条经文，那么添加经文的日子+1
+        	 ca.add(Calendar.DATE, 1);// num为增加的天数，可以改变的
+         }
          if("C".equals(type) || "D".equals(type) || "E".equals(type)){
         	 int week = ca.get(Calendar.DAY_OF_WEEK);
         	 System.out.println(week + "为1则为星期天");
