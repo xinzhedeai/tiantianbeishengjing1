@@ -3,7 +3,15 @@ $(function() {
 	$('.header').load("header.html");
 	$('.footer').load("footer.html");
 	$('#confirmBtn').click(function() {
-		addScripture();
+		if($('#type').val() == 'A'){
+			if($('#scripture_url').val().trim()){
+				addScripture();
+			}else{
+				layer.alert('视频连接不能为空(⊙o⊙)…');
+			}
+		}else{
+			addScripture();
+		}
 	});
 	$('#searchBtn').click(function() {
 		getScripture();
@@ -228,7 +236,7 @@ function getNextScriptureDate(){
 				//周日经文添加提示处理
 				var next_create_date = new Date(res.result.next_create_date);
 				var scripture_type = $('#type').val();
-				if(scripture_type == 'C' || scripture_type == 'D' || scripture_type == 'E'){
+				if(scripture_type == 'C' || scripture_type == 'D' || scripture_type == 'E' || scripture_type == 'F'){
 					next_create_date.getDay() == 0 ? $("#add_scripture_remind").show('slow') : $("#add_scripture_remind").hide('slow');
 				}else{
 					$("#add_scripture_remind").hide('slow');
@@ -245,8 +253,9 @@ function getNextScriptureDate(){
 				getScripture();
 			}
 			
-		} else {
-			layer.alert(res.msg);
+		} else {//获取最新的经文所属日期失败（数据库还没有经文的情况）
+//			layer.alert(res.msg);
+			getScripture();
 		}
 	}, "JSON");
 }
@@ -258,7 +267,8 @@ function getPrevScripture(){
 		if (res.success) {
 			$('#prev_scripture_preview').html('【日期】:'+ res.result.create_date + '<br>' + res.result.scripture_text);
 		} else {
-			layer.alert(res.msg);
+//			layer.alert(res.msg);
+			$('#prev_scripture_preview').html(res.msg);
 		}
 	}, "JSON");
 }
