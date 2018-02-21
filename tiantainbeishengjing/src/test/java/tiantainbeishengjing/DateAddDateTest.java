@@ -9,6 +9,8 @@ import java.util.Date;
 
 import org.junit.Test;
 
+import util.StringUtil;
+
 public class DateAddDateTest {
 
 	@Test
@@ -32,5 +34,26 @@ public class DateAddDateTest {
 		System.out.println(week);
 		
 	}
+	@Test
+	public void curDate(){
+		 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		 Date today = new Date();
+		 String last_date = format.format(today);		
+		 System.out.println(last_date);
+	}
+	@Test
+	public void nextDate(){
+		 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		 Date today = new Date();
+		 String nextDay;
+		 
+		 Calendar ca = Calendar.getInstance();
+         ca.setTime(today);
+         ca.add(Calendar.DATE, 1);// num为增加的天数，可以改变的
+         today = ca.getTime();
+         nextDay = format.format(today);
+		 System.out.println(nextDay);
+	}
+	
 
 }

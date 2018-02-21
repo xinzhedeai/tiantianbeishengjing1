@@ -101,28 +101,17 @@ public class ScriptureAction {
 		Map resultMap = customScriptureMapper.getNextScriptureDate(paramMap);
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		Date last_date;//最新一条经文的日期
-		String first_scripture_date;//初始化第一节经文的默认日期
-		Map<String, String> first_scripture_map = new HashMap<String, String>();
 		if(resultMap == null){
-			 Date today = new Date();
-			 first_scripture_date = format.format(today);	
-			 last_date = null;
-			 first_scripture_map.put("last_create_date", first_scripture_date);
-			 first_scripture_map.put("next_create_date", first_scripture_date);
-			 j.setSuccess(true);
-			 j.setMsg(MSG_CONST.READSUCCESS);
-			 j.setResult(first_scripture_map);
-			 return j;
+			//当resultMap = null,不能使用put方法，需要进行map对象初始化
+		     resultMap = new HashMap();
+			 last_date = new Date();
 		}else{
 			last_date = (Date) resultMap.get("last_create_date");
-			System.out.println(last_date + "最后一天的日期");
 		}
+		System.out.println(last_date + "最后一天的日期");
+		
 		try {
 			if (last_date != null && !"".equals(last_date)) {
-//				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-				/*SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-		        Date currdate = format.parse(last_date);
-		        System.out.println("数据库中最后一节经文的创建日期是：" + currdate);*/
 		        Calendar ca = Calendar.getInstance();
 		        ca.setTime(last_date);
 		        ca.add(Calendar.DATE, 1);// 增加一天
@@ -199,9 +188,10 @@ public class ScriptureAction {
          }else{
         	 ca.add(Calendar.DATE, 7);// num为增加的天数，可以改变的
          }*/
-         if(!StringUtil.isEmpty(last_date_flag)){//如果添加的不是第一条经文，那么添加经文的日子+1
+   /*      if(!StringUtil.isEmpty(last_date_flag)){//如果添加的不是第一条经文，那么添加经文的日子+1
         	 ca.add(Calendar.DATE, 1);// num为增加的天数，可以改变的
-         }
+         }*/
+         ca.add(Calendar.DATE, 1);// num为增加的天数，可以改变的
          if("C".equals(type) || "D".equals(type) || "E".equals(type) || "F".equals(type)){
         	 int week = ca.get(Calendar.DAY_OF_WEEK);
         	 System.out.println(week + "为1则为星期天");
