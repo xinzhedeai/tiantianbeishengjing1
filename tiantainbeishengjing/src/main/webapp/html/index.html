@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>青橄榄-首页</title>
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta name="author" content="zjb" />
 <script type="text/javascript"
@@ -29,6 +29,28 @@ body{background-color: rgb(204, 232, 207);}
 #previewArea{min-height: 300px;}
 textarea.form-control {width: 89%; display:inline-block; vertical-align:middle;}
 .date_ajust_div {overflow:hidden; position:relative; top:115px; right:76%;}
+.hideEle{display: none;}
+	@media (max-width: 699px){
+		body{font-size: 16px}
+		.row{width: 100%;}
+		.container{padding-left: 0; padding-right: 0;}
+		
+		#seachForm label{display: none;}
+		#seachForm .form-group{width: 100% !important; margin-left: -8px; margin-bottom: 3px;}
+		/* body{background-color: gray;} */
+		.login-button button{width: 100%; margin-bottom: 2px;}
+		.login-button span.glyphicon{
+			display: none;
+		}
+		.date_ajust_div{right: -20px; top: 100px;}
+		#previewArea hr{
+	    	margin-top: 10px;
+   			margin-bottom: 10px;
+		}
+		#topcontrol{ /*回到頂部*/
+			bottom: 70px;
+		}
+	}
 </style>
 </head>
 <body>
@@ -64,28 +86,28 @@ textarea.form-control {width: 89%; display:inline-block; vertical-align:middle;}
 								name="createDate" type="text">
 						</div>
 						<div class="login-button">
-							<button type="button"
+							<!-- <button type="button"
 								class="btn btn-default btn-sm index-send-btn" id="importBtn">
-								<!-- <span class="glyphicon glyphicon-plus"></span> -->
+								<span class="glyphicon glyphicon-plus"></span>
 								导入
-							</button>
+							</button> -->
 							<button type="button"
-								class="btn btn-success btn-sm index-send-btn " id="searchBtn">
+								class="btn btn-success btn-sm index-send-btn hideEle" id="searchBtn">
 								<span class="glyphicon glyphicon-search"></span>
 								经文搜索
 							</button>
-							<button type="button" class="btn btn-danger btn-sm index-send-btn "
+							<button type="button" class="btn btn-danger btn-sm index-send-btn hideEle"
 								id="add_scripture_btn">
 							<span class="glyphicon glyphicon-plus"></span>
 							添加经文
 							</button>
 							<button type="button"
-								class="btn btn-primary btn-sm index-send-btn " id="copy">
+								class="btn btn-primary btn-sm index-send-btn hideEle" id="copy">
 								<span class="glyphicon glyphicon-hand-up"></span>
 								一键复制
 							</button>
 							<a href="review.html" target="_blank"
-								class="btn btn-link btn-sm index-send-btn " id="copy">
+								class="btn btn-link btn-sm index-send-btn hideEle" id="copy">
 								<span class="glyphicon glyphicon-chevron-right"></span>
 								周末复习
 							</a>

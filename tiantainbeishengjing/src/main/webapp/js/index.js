@@ -103,8 +103,28 @@ $(function() {
              $(".copy-tips").fadeOut(3000);
 		}
 	});
+	if(getCookie('userType') === 'root'){
+		$('.login-button button, .zclip').show();
+	}else if(getCookie('userType') === 'user'){
+		$('.login-button button, .zclip').hide();
+	}else{
+		location.href = '../login.html';
+	}
+	//读Cookie
+	function getCookie(objName) {//获取指定名称的cookie的值
+	    var arrStr = document.cookie.split("; ");
+	    for (var i = 0; i < arrStr.length; i++) {
+	        var temp = arrStr[i].split("=");
+	        if (temp[0] == objName) return unescape(temp[1]);
+	    }
+	    return "";
+	}
+	
 	//修改经文
 	$(document).on('dblclick', '#previewArea span', function(){
+		if(getCookie('userType') !== 'root'){
+			return false;
+		}
 		var editable_span_dom = '<textarea type="text" class="form-control">'+ $(this).html() +'</textarea>'+
 								'<button type="button" class="btn btn-primary" onclick="modScripture(this)" data-no="'+ $(this).data('no') +'" data-type="'+ $(this).data('type') +'">\
 								<span class="glyphicon glyphicon-ok"></span></button>\
@@ -112,7 +132,6 @@ $(function() {
 								<span class="glyphicon glyphicon-minus"></span></button>';
 		$(this).after(editable_span_dom).hide();
 	});
-	
 	//添加经文
 	$('#add_scripture_btn').click(function(){
 		$('#add_scripture_modal').modal();
